@@ -2,18 +2,21 @@ from flask import Flask, request, make_response, redirect, abort, render_templat
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_wtf import FlaskForm
+from flask_sqlalchemy import SQLAlchemy
 from wtforms import StringField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, Length
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 import os
 
-class NameForm(FlaskForm):
-    name = StringField('What is your name?', validators=[DataRequired()])
-    secret = PasswordField('Tell me your secret.', validators=[DataRequired(), Length(6)])
-    submit = SubmitField('Submit')
 
+
+basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
+DATABASE_URI = os.getenv('DATABASE_URI')
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
 load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
@@ -22,6 +25,26 @@ app.secret_key = SECRET_KEY
 Bootstrap(app)
 Moment(app)
 
+class NameForm(FlaskForm):
+    name = StringField('What is your name?', validators=[DataRequired()])
+    secret = PasswordField('Tell me your secret.', validators=[DataRequired(), Length(6)])
+    submit = SubmitField('Submit')
+
+class Role(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True)
+
+    def __repr__(self):
+        return '<Role %r' % self.name
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), unique=True, index=True)
+
+    def __repr__(self):
+        return '<User %r' % self.username
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -30,7 +53,7 @@ def index():
         old_name = session.get('name')
         new_name = form.name.data
         if old_name is not None and old_name != new_name:
-            flash(f'Nice to meetcha\', {new_name}!')
+            flash(f'Nice ta meetcha\', {new_name}!')
         session['name'] = new_name
         return redirect(url_for('index'))
     return render_template('index.html', current_time=datetime.now(timezone.utc), 
