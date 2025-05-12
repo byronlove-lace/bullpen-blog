@@ -34,26 +34,53 @@ class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
+    users = db.relationship('User', backref='role', lazy='dynamic')
+
+    def __init__(self, name):
+        self.name = name 
 
     def __repr__(self):
-        return '<Role %r' % self.name
+        return '<Role {!r}>'.format(self.name)
 
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+
+    def __init__(self, username):
+        self.username = username 
 
     def __repr__(self):
-        return '<User %r' % self.username
+        return '<User {!r}>'.format(self.username)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     form = NameForm()
     if form.validate_on_submit():
+        user = User.query.filter_by(username=form.name.data).first()
+        if user is None:
+            user = User(username=form.name.data)
+            db.session.add(user)
+            db.session.commit()
+            session['known'] = False
+        else:
+            session['known'] = True 
+        session['name'] = form.name.data
+        form.name.data = ''
+        return redirect(url_for('index'))
+    return render_template('index.html', current_time=datetime.now(timezone.utc), 
+                           form=form, name= session.get('name'), known=session.get('known', False))
+    
+
+
         old_name = session.get('name')
         new_name = form.name.data
         if old_name is not None and old_name != new_name:
             flash(f'Nice ta meetcha\', {new_name}!')
+        else:
+            flash(f'Welcome back\', {new_name}!')
+
         session['name'] = new_name
         return redirect(url_for('index'))
     return render_template('index.html', current_time=datetime.now(timezone.utc), 
