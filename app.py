@@ -3,27 +3,28 @@ from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_wtf import FlaskForm
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from wtforms import StringField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, Length
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 import os
 
-
-
 basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
-DATABASE_URI = os.getenv('DATABASE_URI')
-app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
 
 load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
 app.secret_key = SECRET_KEY
 
+DATABASE_URI = os.getenv('DATABASE_URI')
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
 Bootstrap(app)
 Moment(app)
+migrate = Migrate(app, db)
 
 class NameForm(FlaskForm):
     name = StringField('What is your name?', validators=[DataRequired()])
@@ -54,6 +55,10 @@ class User(db.Model):
     def __repr__(self):
         return '<User {!r}>'.format(self.username)
 
+@app.shell_context_processor
+def make_shell_context():
+    return dict(db=db, User=User, Role=Role)
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     form = NameForm()
@@ -72,20 +77,6 @@ def index():
     return render_template('index.html', current_time=datetime.now(timezone.utc), 
                            form=form, name= session.get('name'), known=session.get('known', False))
     
-
-
-        old_name = session.get('name')
-        new_name = form.name.data
-        if old_name is not None and old_name != new_name:
-            flash(f'Nice ta meetcha\', {new_name}!')
-        else:
-            flash(f'Welcome back\', {new_name}!')
-
-        session['name'] = new_name
-        return redirect(url_for('index'))
-    return render_template('index.html', current_time=datetime.now(timezone.utc), 
-                           form=form, name= session.get('name'))
-
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
