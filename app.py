@@ -43,6 +43,7 @@ try:
     MAIL_PORT = int(os.getenv("MAIL_PORT", "587"))
 except ValueError:
         raise RuntimeError("MAIL_PORT must be an integer")
+
 app.config.update(
     MAIL_SERVER=os.getenv("MAIL_SERVER"),
     MAIL_PORT=MAIL_PORT,
