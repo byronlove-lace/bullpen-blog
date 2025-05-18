@@ -1,18 +1,34 @@
-from flask import Flask, request, make_response, redirect, abort, render_template, session, redirect, url_for, flash
-from flask_bootstrap import Bootstrap
-from flask_moment import Moment
-from flask_wtf import FlaskForm
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_mail import Mail
-from wtforms import StringField, SubmitField, PasswordField
-from wtforms.validators import DataRequired, Length
-from datetime import datetime, timezone
-from dotenv import load_dotenv
 import os
+from datetime import datetime, timezone
+from threading import Thread
+
+from dotenv import load_dotenv
+from flask import (Flask, abort, flash, make_response, redirect,
+                   render_template, request, session, url_for)
+from flask_bootstrap import Bootstrap
+from flask_mail import Mail, Message
+from flask_migrate import Migrate
+from flask_moment import Moment
+from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import FlaskForm
+from loguru import logger
+from wtforms import PasswordField, StringField, SubmitField
+from wtforms.validators import DataRequired, Length
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
+
+# Log to a file with rotation and retention
+logger.add(
+    "logs/app.log",
+    rotation="10 MB",         # new file when it exceeds 10MB
+    retention="7 days",       # keep logs for 7 days
+    compression="zip"         # compress old logs
+)
+
+# Log to another file at ERROR level only
+logger.add("logs/errors.log", level="ERROR")
+logger.add("logs/debug.log", level="DEBUG")
 
 load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
@@ -34,6 +50,11 @@ app.config.update(
     MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
     MAIL_PASSWORD=os.getenv("MAIL_PASSWORD")
 )
+
+app.config['FLASKY_MAIL_SUBJECT_PREFIX'] = '[Flasky]'
+app.config['FLASK_MAIL_SENDER'] = 'Flasky Admin <jewell68@ethereal.email>'
+app.config['FLASKY_ADMIN_MAIL'] = os.getenv('FLASKY_ADMIN_MAIL')
+
 
 migrate = Migrate(app, db)
 mail = Mail(app)
@@ -74,16 +95,38 @@ class User(db.Model):
 def make_shell_context():
     return dict(db=db, User=User, Role=Role)
 
+def send_async_email(app, msg):
+    with app.app_context():
+        try:
+            mail.send(msg)
+            logger.info(f"Sent async email to {msg.recipients[0]} with subject '{msg.subject}'")
+        except Exception as e:
+            logger.error(f"Failed to send async email: {e}")
+
+def send_email(to, subject, template, **kwargs):
+    msg = Message(app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + subject,
+                  sender=app.config['FLASK_MAIL_SENDER'], recipients=[to])
+    msg.body = render_template(template + '.txt', **kwargs)
+    msg.html = render_template(template + '.html', **kwargs)
+    thr = Thread(target=send_async_email, args=[app, msg])
+    thr.start()
+    return thr
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     form = NameForm()
     if form.validate_on_submit():
+        # NOTE: Will this account for 2 separate names?
         user = User.query.filter_by(username=form.name.data).first()
         if user is None:
             user = User(username=form.name.data)
             db.session.add(user)
             db.session.commit()
             session['known'] = False
+            if app.config['FLASKY_ADMIN_MAIL']:
+                logger.debug("FLASKY_ADMIN_MAIL detected.")
+                send_email(app.config['FLASKY_ADMIN_MAIL'], 'New User',
+                           'mail/new_user', user=user)
         else:
             session['known'] = True 
         session['name'] = form.name.data
