@@ -4,6 +4,7 @@ from flask_moment import Moment
 from flask_wtf import FlaskForm
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_mail import Mail
 from wtforms import StringField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, Length
 from datetime import datetime, timezone
@@ -22,9 +23,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+migrate = Migrate(app, db)
+mail = Mail(app)
+
 Bootstrap(app)
 Moment(app)
-migrate = Migrate(app, db)
 
 class NameForm(FlaskForm):
     name = StringField('What is your name?', validators=[DataRequired()])
