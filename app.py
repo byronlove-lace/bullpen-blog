@@ -23,6 +23,18 @@ app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+try: 
+    MAIL_PORT = int(os.getenv("MAIL_PORT", "587"))
+except ValueError:
+        raise RuntimeError("MAIL_PORT must be an integer")
+app.config.update(
+    MAIL_SERVER=os.getenv("MAIL_SERVER"),
+    MAIL_PORT=MAIL_PORT,
+    MAIL_USE_TLS=os.getenv("MAIL_USE_TLS") == 'true',
+    MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
+    MAIL_PASSWORD=os.getenv("MAIL_PASSWORD")
+)
+
 migrate = Migrate(app, db)
 mail = Mail(app)
 
