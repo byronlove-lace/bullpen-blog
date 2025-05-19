@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Error</title>
+  <style>
+    body {
+      background-color: hotpink;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 100px;
+    }
+
+    img {
+      width: 300px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Oops! Something went wrong.</h1>
+  <img src="{{ url_for('static', filename='img/error/dolphin500.png') }}" alt="Error image">
+</body>
+
+</html>
