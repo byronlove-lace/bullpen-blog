@@ -30,15 +30,15 @@ class Config:
     
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DEV_DATABASE_URL")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DEV_DATABASE_URI")
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get("TESTING_DATABASE_URL")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("TESTING_DATABASE_URI")
 
 class ProductionConfig(Config):
     PRODUCTION = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get("PRODUCTION_DATABASE_URL")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("PRODUCTION_DATABASE_URI")
 
 config = {
     'deveopment': DevelopmentConfig,
