@@ -1,3 +1,0 @@
-Welcome, {{ user.username }}!
-
-Thanks for joining our site.
