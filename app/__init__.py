@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
 from flask_mail import Mail
@@ -5,6 +6,7 @@ from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager 
 from loguru import logger
+from rich.traceback import install; install(show_locals=True)
 from config import config
 
 # Log to a file with rotation and retention
@@ -18,6 +20,11 @@ logger.add(
 # Log to another file at ERROR level only
 logger.add("../logs/errors.log", level="ERROR")
 logger.add("../logs/debug.log", level="DEBUG")
+
+# Config rich to focus on my code > lib code
+def rich_traceback_filter(frame):
+    # Show frames only from __init__.py in the app directory
+    return "/app/" in frame.filename
 
 bootstrap = Bootstrap()
 mail = Mail()
