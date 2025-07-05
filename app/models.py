@@ -43,12 +43,12 @@ class User(UserMixin, db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
     
-    def gernerate_confirmation_token(self):
+    def generate_confirmation_token(self):
             s = Serializer(current_app.config['SECRET_KEY'], salt='activate')
             return s.dumps({'confirm': self.id})
 
     def confirm(self, token, expiration=3600):
-        s = Serializer(current_app.config['SECRET_KEY'])
+        s = Serializer(current_app.config['SECRET_KEY'], salt='activate')
         try:
             data = s.loads(token, max_age=expiration)
         except:

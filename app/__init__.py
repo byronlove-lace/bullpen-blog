@@ -2,11 +2,10 @@ import os
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
 from flask_mail import Mail
-from flask_moment import Moment 
+from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager 
+from flask_login import LoginManager
 from loguru import logger
-from rich.traceback import install; install(show_locals=True)
 from config import config
 
 # Log to a file with rotation and retention
@@ -32,7 +31,7 @@ moment = Moment()
 db = SQLAlchemy()
 
 login_manager = LoginManager()
-login_manager.login_view = 'auth.login' 
+login_manager.login_view = 'auth.login'
 
 def create_app(config_name):
     app = Flask(__name__)

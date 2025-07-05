@@ -38,7 +38,7 @@ class UserModelTestCase(unittest.TestCase):
         u = User(password='cat')
         db.session.add(u)
         db.session.commit()
-        token = u.gernerate_confirmation_token()
+        token = u.generate_confirmation_token()
         self.assertTrue(u.confirm(token))
 
     def test_invalid_confirmation_token(self):
@@ -47,13 +47,13 @@ class UserModelTestCase(unittest.TestCase):
         db.session.add(u1)
         db.session.add(u2)
         db.session.commit()
-        token = u1.gernerate_confirmation_token()
+        token = u1.generate_confirmation_token()
         self.assertFalse(u2.confirm(token))
 
     def test_expired_confirmation_token(self):
         u = User(password='cat')
         db.session.add(u)
         db.session.commit()
-        token = u.gernerate_confirmation_token(1)
+        token = u.generate_confirmation_token()
         time.sleep(2)
-        self.assertFalse(u.confirm(token))
+        self.assertFalse(u.confirm(token, expiration=1))
