@@ -62,3 +62,12 @@ def before_request():
             and request.blueprint != 'auth' \
             and request.endpoint != 'static':
         return redirect(url_for('auth.unconfirmed'))
+
+@auth.route('/confirm')
+@login_required
+def resend_confirmation():
+    token = current_user.generate_confirmation_token()
+    send_email(current_user.email, 'Confirm Your Account', 
+               'auth/email/confirm', user=current_user, token=token)
+    flash('A new confirmation email has been sent to your email address.')
+    return redirect(url_for('main.index'))
