@@ -14,7 +14,6 @@ class Config:
     MAIL_USERNAME = os.getenv("MAIL_USERNAME")
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
     FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
-    MAIL_USERNAME = os.getenv("MAIL_USERNAME")
     FLASKY_MAIL_SENDER = f"Flasky Admin <{MAIL_USERNAME}>"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     LOG_DIR = os.getenv("LOG_DIR", "logs")  # fallback to 'logs' if not set
