@@ -1,7 +1,7 @@
 import hashlib
 import requests
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, validators
+from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
 from wtforms import ValidationError
 from ..models import User
@@ -15,11 +15,11 @@ class LoginForm(FlaskForm):
 
 class RegistrationForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Length(1, 64), Email()])
-    username = StringField('Username', validators=[DataRequired(), Length(1, 64), 
+    username = StringField('Username', validators=[DataRequired(), Length(1, 64),
                                                    Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
                                                           'Usernames must have only letters,'
                                                           'numbers, dots or underscores')])
-    password = PasswordField('Password', validators=[DataRequired(), Length(8, 128, message='Password must be between 8 and 128 characters long.'), 
+    password = PasswordField('Password', validators=[DataRequired(), Length(8, 128, message='Password must be between 8 and 128 characters long.'),
                                                      EqualTo('password2', message='Passwords must match.')])
     password2 = PasswordField('Confirm password', validators=[DataRequired()])
     submit = SubmitField('Log In')
@@ -27,7 +27,7 @@ class RegistrationForm(FlaskForm):
     def __get_pwned(self, password):
         sha1 = hashlib.sha1(password.encode('utf-8')).hexdigest().upper()
         prefix, suffix = sha1[:5], sha1[5:]
-        response = requests.get(f'https://api.pwnedpasswords.com/range/{prefix}') 
+        response = requests.get(f'https://api.pwnedpasswords.com/range/{prefix}')
         hashes = (line.split(':') for line in response.text.splitlines())
         for h, count in hashes:
             if h == suffix:
@@ -46,6 +46,3 @@ class RegistrationForm(FlaskForm):
         threshold = 100
         if count and count > threshold:
             raise ValidationError(f'This password has appeared in {count} data breaches. Please choose a more secure ont.')
-
-
-
