@@ -2,7 +2,7 @@ from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, login_required, logout_user, current_user
 from . import auth
 from ..models import User
-from .forms import ChangePassword, LoginForm, RegistrationForm, ChangePasswordForm
+from .forms import LoginForm, RegistrationForm, ChangePasswordForm
 from .. import db
 from ..email import send_email
 
@@ -87,7 +87,7 @@ def change_password():
             db.session.add(current_user)
             db.session.commit()
             flash('Your password has been updated.')
-            return redirect(url_for('main_index'))
+            return redirect(url_for('main.index'))
         else:
             flash('Invalid password.')
     return render_template("auth/change_password.html", form=form)
