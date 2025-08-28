@@ -70,14 +70,11 @@ class ChangePasswordForm(FlaskForm):
 
     submit = SubmitField('Update Password')
 
-class PasswordResetForm(FlaskForm):
+class PasswordResetRequestForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Length(1, 64), Email()])
     submit = SubmitField('Reset Password')
 
-    def validate_email(self, field):
-        if not User.query.filter_by(email=field.data).first():
-            raise ValidationError('No account found with this email.')
-
+class PasswordResetForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired(), Length(8, 128, message='Password must be between 8 and 128 characters long.'),
                                                      EqualTo('password2', message='Passwords must match.')])
     password2 = PasswordField('Confirm password', validators=[DataRequired()])
@@ -99,10 +96,12 @@ class PasswordResetForm(FlaskForm):
 
     submit = SubmitField('Reset Password')
 
-class PasswordResetRequestForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Length(1, 64), Email()])
-    submit = SubmitField('Reset Password')
+class ChangeEmailForm(FlaskForm):
+    email = StringField('New Email', validators=[DataRequired(), Length(1, 64), Email()])
+    password = PasswordField('Current Password', validators=[DataRequired(), Length(8, 128, message='Password must be between 8 and 128 characters long.')])
+    submit = SubmitField('Update Email Address')
 
     def validate_email(self, field):
-        if not User.query.filter_by(email=field.data).first():
-            raise ValidationError('No account found with this email.')
+        if User.query.filter_by(email=field.data).first():
+            raise ValidationError('Email already registered.')
+
