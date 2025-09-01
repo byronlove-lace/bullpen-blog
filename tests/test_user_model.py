@@ -1,7 +1,7 @@
 import time
 import unittest
 from app import create_app, db
-from app.models import Permission, User
+from app.models import AnonymousUser, Permission, User, Role
 
 class UserModelTestCase(unittest.TestCase):
     def setUp(self):
@@ -9,6 +9,7 @@ class UserModelTestCase(unittest.TestCase):
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
+        Role.insert_roles()
 
     def tearDown(self):
         db.session.remove()
@@ -111,7 +112,7 @@ class UserModelTestCase(unittest.TestCase):
         self.assertFalse(u.can(Permission.ADMIN))
 
     def test_anonymous_user(self):
-        u = User(email='john@example.com', password='cat')
+        u = AnonymousUser()
         self.assertFalse(u.can(Permission.FOLLOW))
         self.assertFalse(u.can(Permission.COMMENT))
         self.assertFalse(u.can(Permission.WRITE))
