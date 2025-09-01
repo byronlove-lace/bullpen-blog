@@ -4,7 +4,8 @@ load_dotenv()
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
-    try: 
+# Mail Stuff
+    try:
         MAIL_PORT = int(os.getenv("MAIL_PORT", "587"))
     except ValueError:
         raise RuntimeError("MAIL_PORT must be an integer")
@@ -17,6 +18,7 @@ class Config:
     FLASKY_MAIL_SENDER = f"Flasky Admin <{MAIL_USERNAME}>"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     LOG_DIR = os.getenv("LOG_DIR", "logs")  # fallback to 'logs' if not set
+    FLASKY_ADMIN_MAIL = os.getenv("FLASKY_ADMIN_MAIL")
 
 # Build full paths to individual log files
     APP_LOG = os.path.join(LOG_DIR, "app.log")
