@@ -28,14 +28,14 @@ class Role(db.Model):
 
     def add_permission(self, perm):
         if not self.has_permission(perm):
-            self.permission += perm
+            self.permissions += perm
 
     def remove_permission(self, perm):
         if not self.has_permission(perm):
-            self.permission -= perm
+            self.permissions -= perm
 
     def reset_permissions(self):
-            self.permission = 0
+            self.permissions = 0
 
     @staticmethod
     def insert_roles():
