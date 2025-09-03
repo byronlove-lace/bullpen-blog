@@ -1,4 +1,5 @@
-from flask import current_app
+import hashlib
+from flask import current_app, request
 from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db, login_manager
@@ -65,7 +66,7 @@ class Role(db.Model):
             self.permissions = 0
 
     def __repr__(self):
-        return '<Role {!r}>'.format(self.name)
+        return f'<Role {self.name!r}>'
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -157,6 +158,11 @@ class User(UserMixin, db.Model):
         self.last_seen = datetime.now(timezone.utc)
         db.session.add(self)
         db.session.commit()
+
+    def gravatar(self, size=100, default='identicon', rating='g'):
+        url = 'https://secure.gravatar.com/avatar'
+        hash = hashlib.md5(self.email.lower().encode('utf-8')).hexdigest()
+        return f'{url}/{hash}?s={size}&d={default}&r={rating}'
 
     def __repr__(self):
         return '<User {!r}>'.format(self.username)
