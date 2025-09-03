@@ -38,6 +38,11 @@
         <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">
           Edit Profile
         </a>
+        {% if current_user.is_administrator() %}
+          <a class="btn btn-danger" href="{{ url_for('.edit_profile_admin', id=user.id) }}">
+            Edit Profile [Admin]
+          </a>
+        {% endif %}
       {% endif %}
     </p>
   </div>
