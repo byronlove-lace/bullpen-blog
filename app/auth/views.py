@@ -57,11 +57,14 @@ def confirm(token):
 
 @auth.before_app_request
 def before_request():
-    if current_user.is_authenticated \
-            and not current_user.confirmed \
+    if current_user.is_authenticated:
+        current_user.ping()
+        # request.endpoint so 404s and other errs don't redirect to unconfirmed
+        if not current_user.confirmed \
+            and request.endpoint \
             and request.blueprint != 'auth' \
             and request.endpoint != 'static':
-        return redirect(url_for('auth.unconfirmed'))
+            return redirect(url_for('auth.unconfirmed'))
 
 @auth.route('/unconfirmed')
 def unconfirmed():
