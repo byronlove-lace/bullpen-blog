@@ -75,9 +75,10 @@ class Post(db.Model):
     timestamp = db.Column(db.DateTime(), default=lambda: datetime.now(timezone.utc))
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    def __init__(self, body, author):
+    def __init__(self, body, author, timestamp):
             self.body = body
             self.author = author
+            self.timestamp = timestamp
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
