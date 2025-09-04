@@ -68,6 +68,17 @@ class Role(db.Model):
     def __repr__(self):
         return f'<Role {self.name!r}>'
 
+class Post(db.Model):
+    __tablename__ = 'posts'
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime(), default=lambda: datetime.now(timezone.utc))
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def __init__(self, body, author):
+            self.body = body
+            self.author = author
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -81,6 +92,8 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.Text())
     member_since = db.Column(db.DateTime(), default=lambda: datetime.now(timezone.utc))
     last_seen = db.Column(db.DateTime(), default=lambda: datetime.now(timezone.utc))
+    avatar_hash = db.Column(db.String(32))
+    posts = db.relationship('Post', backref='author', lazy='dynamic')
 
     @property
     def password(self):
@@ -131,6 +144,9 @@ class User(UserMixin, db.Model):
         s = Serializer(current_app.config['SECRET_KEY'], salt='change_email')
         return s.dumps({'change_email': self.id, 'new_email': new_email})
 
+    def gravatar_hash(self):
+        return hashlib.md5(self.email.lower().encode('utf-8')).hexdigest()
+
     def change_email(self, token, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], salt='change_email')
         try:
@@ -145,6 +161,7 @@ class User(UserMixin, db.Model):
         if self.query.filter_by(email=new_email).first() is not None:
             return False
         self.email = new_email
+        self.avatar_hash = self.gravatar_hash()
         db.session.add(self)
         return True
 
@@ -161,8 +178,9 @@ class User(UserMixin, db.Model):
 
     def gravatar(self, size=100, default='identicon', rating='g'):
         url = 'https://secure.gravatar.com/avatar'
-        hash = hashlib.md5(self.email.lower().encode('utf-8')).hexdigest()
+        hash = self.avatar_hash or self.gravatar_hash()
         return f'{url}/{hash}?s={size}&d={default}&r={rating}'
+    
 
     def __repr__(self):
         return '<User {!r}>'.format(self.username)
@@ -174,6 +192,8 @@ class User(UserMixin, db.Model):
                 self.role = Role.query.filter_by(name='Administrator').first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
+        if self.email is not None and self.avatar_hash is None:
+            self.avatar_hash = self.gravatar_hash()
 
 # will be checked via current_user
 class AnonymousUser(AnonymousUserMixin):
@@ -184,3 +204,4 @@ class AnonymousUser(AnonymousUserMixin):
         return False
 
 login_manager.anonymous_user = AnonymousUser
+
