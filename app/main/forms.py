@@ -40,3 +40,7 @@ class EditProfileAdminForm(FlaskForm):
         self.role.choices = [(role.id, role.name)
                               for role in Role.query.order_by(Role.name).all()]
         self.user = user
+
+class PostForm(FlaskForm):
+    body = TextAreaField("What's on your mind?", validators=[DataRequired()])
+    submit = SubmitField('Submit')
