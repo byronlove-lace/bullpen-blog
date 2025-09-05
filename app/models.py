@@ -5,6 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from . import db, login_manager
 from itsdangerous import URLSafeTimedSerializer as Serializer
 from datetime import datetime, timezone
+from markdown import markdown
+import bleach
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -72,13 +74,24 @@ class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.Text)
+    body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime(), default=lambda: datetime.now(timezone.utc))
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    def __init__(self, body, author, timestamp):
+    @staticmethod
+    def on_changed_body(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+                        'h1', 'h2', 'h3', 'p']
+        target.body_html = bleach.linkify(bleach.clean( 
+        markdown(value, output_format='html'),
+        tags = allowed_tags, strip=True)) # prevents XSS
+ 
+    def __init__(self, body, author):
             self.body = body
             self.author = author
-            self.timestamp = timestamp
+
+db.event.listen(Post.body, 'set', Post.on_changed_body)
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
