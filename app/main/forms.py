@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import BooleanField, PasswordField, SelectField, StringField, SubmitField, TextAreaField, ValidationError
 from wtforms.validators import DataRequired, Length, Email, Regexp
 from ..models import User, Role
+from flask_pagedown.fields import PageDownField
 
 class NameForm(FlaskForm):
     name = StringField('What is your name?', validators=[DataRequired()])
@@ -42,5 +43,5 @@ class EditProfileAdminForm(FlaskForm):
         self.user = user
 
 class PostForm(FlaskForm):
-    body = TextAreaField("What's on your mind?", validators=[DataRequired()])
+    body = PageDownField("What's on your mind?", validators=[DataRequired()])
     submit = SubmitField('Submit')
