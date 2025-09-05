@@ -4,23 +4,27 @@ load_dotenv()
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
-# Mail Stuff
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = os.getenv("SECRET_KEY")
+
+    # Mail Stuff
     try:
-        MAIL_PORT = int(os.getenv("MAIL_PORT", "587"))
+        MAIL_PORT = int(os.getenv("MAIL_PORT", 587))
     except ValueError:
         raise RuntimeError("MAIL_PORT must be an integer")
-    SECRET_KEY = os.getenv("SECRET_KEY")
     MAIL_SERVER = os.getenv("MAIL_SERVER")
     MAIL_USE_TLS = os.getenv("MAIL_USE_TLS")
     MAIL_USERNAME = os.getenv("MAIL_USERNAME")
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
     FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
     FLASKY_MAIL_SENDER = f"Flasky Admin <{MAIL_USERNAME}>"
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    LOG_DIR = os.getenv("LOG_DIR", "logs")  # fallback to 'logs' if not set
     FLASKY_ADMIN_MAIL = os.getenv("FLASKY_ADMIN_MAIL")
 
-# Build full paths to individual log files
+    # Pages
+    FLASKY_POSTS_PER_PAGE = int(os.getenv("FLASKY_POSTS_PER_PAGE", 20))
+
+    # Build full paths to individual log files
+    LOG_DIR = os.getenv("LOG_DIR", "logs")  # fallback to 'logs' if not set
     APP_LOG = os.path.join(LOG_DIR, "app.log")
     ERROR_LOG = os.path.join(LOG_DIR, "error.log")
     DEBUG_LOG = os.path.join(LOG_DIR, "debug.log")
