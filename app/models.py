@@ -1,6 +1,7 @@
 import hashlib
 from flask import current_app, request
 from flask_login import UserMixin, AnonymousUserMixin
+from sqlalchemy.orm import backref
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db, login_manager
 from itsdangerous import URLSafeTimedSerializer as Serializer
@@ -70,6 +71,26 @@ class Role(db.Model):
     def __repr__(self):
         return f'<Role {self.name!r}>'
 
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text)
+    body_html = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime(), default=lambda: datetime.now(timezone.utc))
+    disabled = db.Column(db.Boolean)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+
+    @staticmethod
+    def on_changed_body(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+                        'em', 'i', 'pre', 'strong']
+        target.body_html = bleach.linkify(bleach.clean( 
+        markdown(value, output_format='html'),
+        tags = allowed_tags, strip=True)) # prevents XSS
+
+db.event.listen(Comment.body, 'set', Comment.on_changed_body)
+
 class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
@@ -77,6 +98,7 @@ class Post(db.Model):
     body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime(), default=lambda: datetime.now(timezone.utc))
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    comments = db.relationship('Comment', backref='post', lazy='dynamic')
 
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
@@ -93,6 +115,14 @@ class Post(db.Model):
 
 db.event.listen(Post.body, 'set', Post.on_changed_body)
 
+class Follow(db.Model):
+    __tablename__='follows'
+    follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), # Person who follows
+                            primary_key=True)
+    followed_id = db.Column(db.Integer, db.ForeignKey('users.id'), # Person who is followed
+                            primary_key=True) # 2 primary keys form composite in SQLAlchemy
+    timestamp = db.Column(db.DateTime(), default=lambda: datetime.now(timezone.utc))
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -108,6 +138,24 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime(), default=lambda: datetime.now(timezone.utc))
     avatar_hash = db.Column(db.String(32))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
+
+    followed = db.relationship('Follow', # Users this user follows.
+                               foreign_keys=[Follow.follower_id],
+                               backref=db.backref('follower', lazy='joined'),
+                               lazy='dynamic',
+                               cascade='all, delete-orphan')
+    followers = db.relationship('Follow', # Users that follow this user.
+                               foreign_keys=[Follow.followed_id],
+                               backref=db.backref('followed', lazy='joined'),
+                               lazy='dynamic',
+                               cascade='all, delete-orphan')
+
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')
+
+    @property
+    def followed_posts(self):
+        return Post.query.join(Follow, Follow.followed_id == Post.author_id)\
+            .filter(Follow.follower_id == self.id)
 
     @property
     def password(self):
@@ -195,6 +243,35 @@ class User(UserMixin, db.Model):
         hash = self.avatar_hash or self.gravatar_hash()
         return f'{url}/{hash}?s={size}&d={default}&r={rating}'
     
+    def is_following(self, user):
+        if user.id is None:
+            return False
+        return self.followed.filter_by(
+            followed_id=user.id).first() is not None
+
+    def is_followed_by(self, user):
+        if user.id is None:
+            return False
+        return self.followers.filter_by(
+            follower_id=user.id).first() is not None
+
+    def follow(self, user):
+        if not self.is_following(user):
+            f = Follow(follower=self, followed=user)
+            db.session.add(f)
+
+    def unfollow(self, user):
+        f = self.followed.filter_by(followed_id=user.id).first()
+        if f:
+            db.session.delete(f)
+
+    @staticmethod
+    def add_self_follows():
+        for user in User.query.all():
+            if not user.is_following(user):
+                user.follow(user)
+                db.session.add(user)
+                db.session.commit()
 
     def __repr__(self):
         return '<User {!r}>'.format(self.username)
@@ -208,6 +285,7 @@ class User(UserMixin, db.Model):
                 self.role = Role.query.filter_by(default=True).first()
         if self.email is not None and self.avatar_hash is None:
             self.avatar_hash = self.gravatar_hash()
+        self.follow(self) # So that user sees their own posts in 'followed' tab
 
 # will be checked via current_user
 class AnonymousUser(AnonymousUserMixin):
