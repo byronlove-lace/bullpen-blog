@@ -22,6 +22,11 @@ class Config:
 
     # Pages
     FLASKY_POSTS_PER_PAGE = int(os.getenv("FLASKY_POSTS_PER_PAGE", 20))
+    FLASKY_COMMENTS_PER_PAGE = int(os.getenv("FLASKY_COMMENTS_PER_PAGE", 20))
+    FLASKY_FOLLOWERS_PER_PAGE = int(os.getenv("FLASKY_FOLLOWERS_PER_PAGE", 20))
+
+    # Cookies
+    SHOW_FOLLOWED_COOKIE_AGE=int(os.getenv('SHOW_FOLLOWED_COOKIE_AGE', 2592000))
 
     # Build full paths to individual log files
     LOG_DIR = os.getenv("LOG_DIR", "logs")  # fallback to 'logs' if not set
