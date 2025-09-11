@@ -1,4 +1,4 @@
-# Flasky — Minimal Flask Blog (API + Jinja frontend)
+# Bullpen Blog — Minimal Flask Blog (API + Jinja frontend)
 
 > Small, modular Flask blog application with a Jinja-rendered web UI and a companion REST API (blueprints under `app/api`).
 
@@ -9,6 +9,9 @@ This repository contains a teaching-style Flask project (inspired by *Flask Web 
 ## Features
 
 * Web UI using Flask + Jinja templates (routes under `app/main`).
+* Styling with Bootstrap — templates include Bootstrap 3/4 classes and macros
+  (via `bootstrap/wtf.html`) so forms and UI elements render with a clean,
+  responsive design out of the box.
 * REST API (blueprint `app/api`) for posts, users and comments with JSON responses.
 * Authentication for API routes via HTTP Basic / token (Flask-HTTPAuth).
 * Role-based permissions decorator (`permission_required`) for protected endpoints.
