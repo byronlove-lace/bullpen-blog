@@ -15,6 +15,7 @@ This repository contains a teaching-style Flask project (inspired by *Flask Web 
 * REST API (blueprint `app/api`) for posts, users and comments with JSON responses.
 * Authentication for API routes via HTTP Basic / token (Flask-HTTPAuth).
 * Role-based permissions decorator (`permission_required`) for protected endpoints.
+* Email support — `Flask-Mail` for sending messages and `email_validator` for form validation.
 * Post/comment sanitization: Markdown -> safe HTML (Bleach + markdown).
 * Pagination support for posts and timelines.
 * Alembic migrations included for schema evolution.
