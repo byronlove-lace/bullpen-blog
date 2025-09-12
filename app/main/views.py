@@ -11,8 +11,8 @@ from ..models import Role
 def index():
     form = PostForm()
     if current_user.can(Permission.WRITE) and form.validate_on_submit():
-        post = Post(body=form.body.data,
-                    author=current_user)
+        post = Post(body=form.body.data)
+        post.author = current_user
         db.session.add(post)
         db.session.commit()
         return redirect(url_for('.index'))
