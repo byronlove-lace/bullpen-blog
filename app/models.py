@@ -1,13 +1,14 @@
 import hashlib
-from flask import current_app, request
+from flask import current_app, url_for
 from flask_login import UserMixin, AnonymousUserMixin
-from sqlalchemy.orm import backref
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db, login_manager
 from itsdangerous import URLSafeTimedSerializer as Serializer
 from datetime import datetime, timezone
 from markdown import markdown
+from app.exceptions import ValidationError
 import bleach
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -89,6 +90,28 @@ class Comment(db.Model):
         markdown(value, output_format='html'),
         tags = allowed_tags, strip=True)) # prevents XSS
 
+    def to_json(self):
+        json_comment = {
+            'url': url_for('api.get_comment', id=self.id),
+            'body': self.body,
+            'body_html': self.body_html,
+            'timestamp': self.timestamp,
+            'disabled': self.disabled,
+            'author_url': url_for('api.get_user', id=self.author_id),
+            'post_url': url_for('api.get_post', id=self.post_id)
+        }
+        return json_comment
+
+    @staticmethod
+    def from_json(json_comment):
+        body = json_comment.get('body')
+        if body is None or body == '':
+            raise ValidationError('comment does not have body')
+        return Comment(body=body)
+
+    def __init__(self, body):
+            self.body = body
+
 db.event.listen(Comment.body, 'set', Comment.on_changed_body)
 
 class Post(db.Model):
@@ -108,10 +131,28 @@ class Post(db.Model):
         target.body_html = bleach.linkify(bleach.clean( 
         markdown(value, output_format='html'),
         tags = allowed_tags, strip=True)) # prevents XSS
+
+    def to_json(self):
+        json_post = {
+            'url': url_for('api.get_post', id=self.id),
+            'body': self.body,
+            'body_html': self.body_html,
+            'timestamp': self.timestamp,
+            'author_url': url_for('api.get_user', id=self.author_id),
+            'comments_url': url_for('api.get_post_comments', id=self.id),
+            'comments_count': self.comments.count()
+        }
+        return json_post
  
-    def __init__(self, body, author):
+    @staticmethod
+    def from_json(json_post):
+        body = json_post.get('body')
+        if body is None or body == '':
+            raise ValidationError('post does not have body')
+        return Post(body=body)
+
+    def __init__(self, body):
             self.body = body
-            self.author = author
 
 db.event.listen(Post.body, 'set', Post.on_changed_body)
 
@@ -138,6 +179,7 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime(), default=lambda: datetime.now(timezone.utc))
     avatar_hash = db.Column(db.String(32))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')
 
     followed = db.relationship('Follow', # Users this user follows.
                                foreign_keys=[Follow.follower_id],
@@ -150,7 +192,6 @@ class User(UserMixin, db.Model):
                                lazy='dynamic',
                                cascade='all, delete-orphan')
 
-    comments = db.relationship('Comment', backref='author', lazy='dynamic')
 
     @property
     def followed_posts(self):
@@ -201,6 +242,21 @@ class User(UserMixin, db.Model):
         user.password = new_password
         db.session.add(user)
         return True
+
+    def generate_auth_token(self):
+        s = Serializer(current_app.config['SECRET_KEY'],
+                       salt='authenticate')
+        return s.dumps({'id': self.id})
+
+    @staticmethod
+    def verify_auth_token(token, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], salt='authenticate')
+        try:
+            data = s.loads(token, max_age=expiration)
+        except:
+            return None
+        return User.query.get(data['id'])
+
 
     def generate_email_change_token(self, new_email):
         s = Serializer(current_app.config['SECRET_KEY'], salt='change_email')
@@ -272,6 +328,17 @@ class User(UserMixin, db.Model):
                 user.follow(user)
                 db.session.add(user)
                 db.session.commit()
+
+    def to_json(self):
+        json_user = {
+        'url': url_for('api.get_user', id=self.id),
+        'username': self.username,
+        'member_since': self.member_since,
+        'last_seen': self.last_seen,
+        'posts_url': url_for('api.get_user_posts', id=self.id),
+        'followed_posts_url': url_for('api.get_user_followed_posts', id=self.id),
+        }
+        return json_user
 
     def __repr__(self):
         return '<User {!r}>'.format(self.username)
