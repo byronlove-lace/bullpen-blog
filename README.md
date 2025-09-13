@@ -36,7 +36,7 @@ python3 -m venv venv
 pip install -r requirements/dev.txt
 
 # set environment variables (example)
-export FLASK_APP=flasky.py
+export FLASK_APP=bullpen-blog.py
 export FLASK_ENV=development
 export SECRET_KEY='change-this-to-a-secure-value'
 export DATABASE_URL='sqlite:///data-dev.sqlite'
@@ -99,7 +99,7 @@ app/                # application package
   models.py         # SQLAlchemy models
   templates/        # Jinja templates for web UI
 migrations/         # Alembic migrations
-flasky.py           # app entry point (create_app() and run)
+bullpen-blog.py           # app entry point (create_app() and run)
 requirements/       # dependency lists (common, dev, prod)
 ```
 
