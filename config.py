@@ -1,6 +1,4 @@
 import os
-from dotenv import load_dotenv
-load_dotenv()
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
@@ -16,14 +14,14 @@ class Config:
     MAIL_USE_TLS = os.getenv("MAIL_USE_TLS")
     MAIL_USERNAME = os.getenv("MAIL_USERNAME")
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
-    FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
-    FLASKY_MAIL_SENDER = f"Flasky Admin <{MAIL_USERNAME}>"
-    FLASKY_ADMIN_MAIL = os.getenv("FLASKY_ADMIN_MAIL")
+    BULLPEN_MAIL_SUBJECT_PREFIX = '[Bullpen]'
+    BULLPEN_MAIL_SENDER = f"Bullpen Admin <{MAIL_USERNAME}>"
+    BULLPEN_ADMIN_MAIL = os.getenv("BULLPEN_ADMIN_MAIL")
 
     # Pages
-    FLASKY_POSTS_PER_PAGE = int(os.getenv("FLASKY_POSTS_PER_PAGE", 20))
-    FLASKY_COMMENTS_PER_PAGE = int(os.getenv("FLASKY_COMMENTS_PER_PAGE", 20))
-    FLASKY_FOLLOWERS_PER_PAGE = int(os.getenv("FLASKY_FOLLOWERS_PER_PAGE", 20))
+    BULLPEN_POSTS_PER_PAGE = int(os.getenv("BULLPEN_POSTS_PER_PAGE", 20))
+    BULLPEN_COMMENTS_PER_PAGE = int(os.getenv("BULLPEN_COMMENTS_PER_PAGE", 20))
+    BULLPEN_FOLLOWERS_PER_PAGE = int(os.getenv("BULLPEN_FOLLOWERS_PER_PAGE", 20))
 
     # Cookies
     SHOW_FOLLOWED_COOKIE_AGE=int(os.getenv('SHOW_FOLLOWED_COOKIE_AGE', 2592000))
@@ -34,16 +32,22 @@ class Config:
     ERROR_LOG = os.path.join(LOG_DIR, "error.log")
     DEBUG_LOG = os.path.join(LOG_DIR, "debug.log")
 
+    # Testing
+    TEST_CLIENT_EMAIL=os.getenv('TEST_CLIENT_EMAIL')
+    TEST_CLIENT_PASSWORD=os.getenv('TEST_CLIENT_PASSWORD')
+    TEST_CLIENT_USERNAME=os.getenv('TEST_CLIENT_USERNAME')
+
     @staticmethod
     def init_app(app):
         pass
-    
+
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get("DEV_DATABASE_URI")
 
 class TestingConfig(Config):
     TESTING = True
+    WTF_CSRF_ENABLED = False
     SQLALCHEMY_DATABASE_URI = os.environ.get("TEST_DATABASE_URI")
 
 class ProductionConfig(Config):
