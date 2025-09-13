@@ -9,7 +9,7 @@ def get_comments():
     page = request.args.get('page', 1, type=int)
     pagination = Comment.query.paginate(
         page=page,
-        per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
+        per_page=current_app.config['BULLPEN_COMMENTS_PER_PAGE'],
         error_out=False)
     comments = pagination.items
     prev = None
@@ -34,7 +34,7 @@ def get_post_comments(id):
     page = request.args.get('page', 1, type=int)
     pagination = post.comments.order_by(Comment.timestamp.desc()).paginate(
     page=page,
-    per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
+    per_page=current_app.config['BULLPEN_COMMENTS_PER_PAGE'],
     error_out=False)
     comments = pagination.items
     prev = None

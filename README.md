@@ -56,8 +56,8 @@ Configuration is read from `config.py` and environment variables. Common config 
 
 * `SECRET_KEY` — secret for signing tokens and forms.
 * `DATABASE_URL` — SQLAlchemy database URI (defaults to SQLite during development).
-* `FLASKY_POSTS_PER_PAGE` — pagination size for posts.
-* `FLASKY_COMMENTS_PER_PAGE` — pagination size for comments.
+* `BULLPEN_POSTS_PER_PAGE` — pagination size for posts.
+* `BULLPEN_COMMENTS_PER_PAGE` — pagination size for comments.
 * Mail settings (MAIL\_SERVER, MAIL\_PORT, MAIL\_USERNAME, MAIL\_PASSWORD) for email features.
 
 You can use a `.env` file with a tool like `direnv` or `python-dotenv` in local dev, or export variables in your shell.
