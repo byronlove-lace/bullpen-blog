@@ -1,7 +1,11 @@
-import unittest, re
-from app import create_app, db
-from app.models import User, Role
+import re
+import unittest
+
 from flask import current_app
+
+from app import create_app, db
+from app.models import Role, User
+
 
 class FlaskClientTestCase(unittest.TestCase):
     def setUp(self):
@@ -38,7 +42,8 @@ class FlaskClientTestCase(unittest.TestCase):
             'password': current_app.config['TEST_CLIENT_PASSWORD']
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
-        self.assertRegex(response.get_data(as_text=True), re.escape(current_app.config['TEST_CLIENT_USERNAME']))
+        self.assertRegex(response.get_data(as_text=True),
+                         r"Hello,\s+" + re.escape(current_app.config['TEST_CLIENT_USERNAME']))
         self.assertTrue('You have not confirmed your account yet' in response.get_data(
             as_text=True))
 
