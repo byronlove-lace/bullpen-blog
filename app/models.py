@@ -1,13 +1,16 @@
 import hashlib
-from flask import current_app, url_for
-from flask_login import UserMixin, AnonymousUserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
-from . import db, login_manager
-from itsdangerous import URLSafeTimedSerializer as Serializer
 from datetime import datetime, timezone
-from markdown import markdown
-from app.exceptions import ValidationError
+
 import bleach
+from flask import current_app, url_for
+from flask_login import AnonymousUserMixin, UserMixin
+from itsdangerous import URLSafeTimedSerializer as Serializer
+from markdown import markdown
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from app.exceptions import ValidationError
+
+from . import db, login_manager
 
 
 @login_manager.user_loader

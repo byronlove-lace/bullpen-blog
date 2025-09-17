@@ -1,12 +1,14 @@
 import os
+
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
+from flask_login import LoginManager
 from flask_mail import Mail
 from flask_moment import Moment
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
 from flask_pagedown import PageDown
+from flask_sqlalchemy import SQLAlchemy
 from loguru import logger
+
 from config import config
 
 # Log to a file with rotation and retention

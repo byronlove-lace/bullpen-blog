@@ -1,8 +1,11 @@
-from flask_wtf import FlaskForm
-from wtforms import BooleanField, PasswordField, SelectField, StringField, SubmitField, TextAreaField, ValidationError
-from wtforms.validators import DataRequired, Length, Email, Regexp
-from ..models import User, Role
 from flask_pagedown.fields import PageDownField
+from flask_wtf import FlaskForm
+from wtforms import (BooleanField, PasswordField, SelectField, StringField,
+                     SubmitField, TextAreaField, ValidationError)
+from wtforms.validators import DataRequired, Email, Length, Regexp
+
+from ..models import Role, User
+
 
 class NameForm(FlaskForm):
     name = StringField('What is your name?', validators=[DataRequired()])
