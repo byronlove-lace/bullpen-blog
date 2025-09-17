@@ -1,10 +1,13 @@
 import hashlib
+
 import requests
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
-from wtforms import ValidationError
+from wtforms import (BooleanField, PasswordField, StringField, SubmitField,
+                     ValidationError)
+from wtforms.validators import DataRequired, Email, EqualTo, Length, Regexp
+
 from ..models import User
+
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Length(1, 64)])

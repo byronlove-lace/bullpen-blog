@@ -1,9 +1,11 @@
-from . import api
-from ..models import Permission, Post
+from flask import current_app, g, jsonify, request, url_for
+
 from .. import db
+from ..models import Permission, Post
+from . import api
 from .decorators import permission_required
 from .errors import forbidden
-from flask import request, g, jsonify, url_for, current_app
+
 
 @api.route('/posts/')
 def get_posts():
