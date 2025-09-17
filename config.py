@@ -36,6 +36,7 @@ class Config:
     TEST_CLIENT_EMAIL=os.getenv('TEST_CLIENT_EMAIL')
     TEST_CLIENT_PASSWORD=os.getenv('TEST_CLIENT_PASSWORD')
     TEST_CLIENT_USERNAME=os.getenv('TEST_CLIENT_USERNAME')
+    LOOPBACK_ADDRESS=os.getenv('LOOPBACK_ADDRESS')
 
     @staticmethod
     def init_app(app):
