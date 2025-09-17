@@ -2,3 +2,5 @@
 Faker==37.6.0
 httpie==3.2.4
 coverage==7.10.6
+selenium==4.35.0
+isort==6.0.1
