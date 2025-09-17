@@ -1,11 +1,14 @@
-import unittest, re
-from flask_login import current_user
+import re
+import unittest
 from base64 import b64encode
 
+from flask import current_app, json, url_for
+from flask_login import current_user
 from werkzeug.wrappers import response
+
 from app import create_app, db
-from app.models import User, Role
-from flask import current_app, url_for, json
+from app.models import Role, User
+
 
 class FlaskClientTestCase(unittest.TestCase):
     def setUp(self):
