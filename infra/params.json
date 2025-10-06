@@ -1,0 +1,15 @@
+{
+  "rg_name": {
+    "value": "bullpen-blog-rg"
+  },
+  "rg_location": {
+    "value": "northeurope"
+  },
+  "rg_tags": {
+    "value": {
+      "Environment": "Production",
+      "Project": "Bullpen Blog",
+      "Version": "1.0.0"
+    }
+  }
+}
