@@ -70,5 +70,14 @@
   },
   "webAppClientAffinity": {
     "value": false
+  },
+  "keyVaultEnableRbac": {
+    "value": true
+  },
+  "keyVaultSecretsUserRoleId": {
+    "value": "4633458b-17de-408a-b874-0445c86b69e6"
+  },
+  "keyVaultSecretsOfficerRoleId": {
+    "value": "b86a8fe4-44ce-4948-aee5-eccb2c155cd7"
   }
 }
