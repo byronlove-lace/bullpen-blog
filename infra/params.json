@@ -1,15 +1,74 @@
 {
-  "rg_name": {
-    "value": "bullpen-blog-rg"
+  "resourceGroupName": {
+    "value": "bullpen-blog-resource-group"
   },
-  "rg_location": {
+  "resourceGroupLocation": {
     "value": "northeurope"
   },
-  "rg_tags": {
+  "resourceGroupTags": {
     "value": {
       "Environment": "Production",
       "Project": "Bullpen Blog",
       "Version": "1.0.0"
     }
+  },
+  "planName": {
+    "value": "bullpen-blog-plan"
+  },
+  "planSkuName": {
+    "value": "B1"
+  },
+  "planSkuTier": {
+    "value": "Basic"
+  },
+  "isLinux": {
+    "value": true
+  },
+  "appName": {
+    "value": "bullpen-blog-app"
+  },
+  "webAppTags": {
+    "value": {
+      "Environment": "Production",
+      "Project": "Bullpen Blog",
+      "Version": "1.0.0"
+    }
+  },
+  "webAppKind": {
+    "value": "app"
+  },
+  "keyVaultName": {
+    "value": "bullpen-blog-key-vault"
+  },
+  "keyVaultTags": {
+    "value": {
+      "Environment": "Production",
+      "Project": "Bullpen Blog",
+      "Version": "1.0.0"
+    }
+  },
+  "keyVaultSkuFamily": {
+    "value": "A"
+  },
+  "keyVaultSkuName": {
+    "value": "standard"
+  },
+  "keyVaultEnabledForDeployment": {
+    "value": true
+  },
+  "keyVaultEnableSoftDelete": {
+    "value": true
+  },
+  "keyVaultEnablePurgeProtection": {
+    "value": true
+  },
+  "webAppHttps": {
+    "value": true
+  },
+  "webAppManagedServiceIdentityType": {
+    "value": "SystemAssigned"
+  },
+  "webAppClientAffinity": {
+    "value": false
   }
 }
