@@ -19,7 +19,12 @@ param webAppManagedServiceIdentityType string
 param webAppHttps bool
 param keyVaultEnabledForDeployment bool
 param keyVaultEnableSoftDelete bool
-param keyVaultEnablePurgeProtection bool
+param keyVaultEnableRbac bool
+param keyVaultSecretsUserRoleId string
+param keyVaultSecretsOfficerRoleId string
+param officerPrincipalId string
+param createKeyVault bool
+param existingKeyVaultId string
 
 // Create resource group
 // Note: module paths are relative to THIS file, not run command
@@ -31,6 +36,28 @@ module resourceGroup 'resource-group.bicep' = {
     resourceGroupLocation: resourceGroupLocation
     resourceGroupTags: resourceGroupTags
   }
+}
+
+module kv 'key-vault.bicep' = {
+  name: 'keyVaultModule'
+  scope: az.resourceGroup(resourceGroupName)
+  params: {
+    keyVaultName: keyVaultName
+    resourceGroupLocation: resourceGroupLocation
+    keyVaultTags: keyVaultTags
+    keyVaultSkuFamily: keyVaultSkuFamily
+    keyVaultSkuName: keyVaultSkuName
+    keyVaultEnabledForDeployment: keyVaultEnabledForDeployment
+    keyVaultEnableSoftDelete: keyVaultEnableSoftDelete
+    keyVaultEnableRbac: keyVaultEnableRbac
+    keyVaultSecretsOfficerRoleId: keyVaultSecretsOfficerRoleId
+    officerPrincipalId: officerPrincipalId
+    createKeyVault: createKeyVault
+    existingKeyVaultId: existingKeyVaultId
+  }
+  dependsOn: [
+    resourceGroup
+  ]
 }
 
 // Create App Service Plan inside RG
@@ -62,23 +89,10 @@ module app 'web-app.bicep' = {
     webAppClientAffinity: webAppClientAffinity
     webAppHttps : webAppHttps
     webAppManagedServiceIdentityType: webAppManagedServiceIdentityType
+    keyVaultId: kv.outputs.keyVaultId
+    keyVaultSecretsUserRoleId: keyVaultSecretsUserRoleId
+    keyVaultName: keyVaultName
   }
   // No need for dependsOn as it is automatically linked due to output dependencies
 }
 
-// Key Vault with Web App access
-module kv 'key-vault.bicep' = {
-  name: 'keyVaultModule'
-  scope: az.resourceGroup(resourceGroupName)
-  params: {
-    keyVaultName: keyVaultName
-    resourceGroupLocation: resourceGroupLocation
-    keyVaultTags: keyVaultTags
-    keyVaultSkuFamily: keyVaultSkuFamily
-    keyVaultSkuName: keyVaultSkuName
-    keyVaultEnabledForDeployment: keyVaultEnabledForDeployment
-    keyVaultEnableSoftDelete: keyVaultEnableSoftDelete
-    keyVaultEnablePurgeProtection: keyVaultEnablePurgeProtection
-    webAppPrincipalId: app.outputs.webAppPrincipalId
-  }
-}
