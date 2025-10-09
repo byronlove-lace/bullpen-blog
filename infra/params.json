@@ -38,7 +38,7 @@
     "value": "app"
   },
   "keyVaultName": {
-    "value": "bullpen-blog-key-vault"
+    "value": "bullpen-blog-keyvault"
   },
   "keyVaultTags": {
     "value": {
@@ -57,9 +57,6 @@
     "value": true
   },
   "keyVaultEnableSoftDelete": {
-    "value": true
-  },
-  "keyVaultEnablePurgeProtection": {
     "value": true
   },
   "webAppHttps": {
