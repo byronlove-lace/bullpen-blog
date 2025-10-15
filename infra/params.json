@@ -76,5 +76,20 @@
   },
   "keyVaultSecretsOfficerRoleId": {
     "value": "b86a8fe4-44ce-4948-aee5-eccb2c155cd7"
+  },
+  "sqlDBName": {
+    "value": "bullpen-blog-db"
+  },
+  "sqlDBAdminUsername": {
+    "value": "bullpen-admin"
+  },
+  "sqlDBSkuName": {
+    "value": "standard"
+  },
+  "sqlDBSkuTier": {
+    "value": "standard"
+  },
+  "env": {
+    "value": "dev"
   }
 }
