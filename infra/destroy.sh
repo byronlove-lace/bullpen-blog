@@ -37,10 +37,16 @@ if $PURGE; then
     echo "Resource group '$RESOURCE_GROUP_NAME' found. Deleting..."
   fi
 else
+  echo "Cleaning up Key Vault role assignments for $WEBAPP_NAME..."
+  KV_ID=$(az keyvault show -n "$KEYVAULT_NAME" -g "$RESOURCE_GROUP_NAME" --query id -o tsv)
+  for ID in $(az role assignment list --scope "$KV_ID" --query "[].id" -o tsv); do
+    az role assignment delete --ids "$ID"
+  done
+
   # Delete the Web App
   if az webapp show --name "$WEBAPP_NAME" --resource-group "$RESOURCE_GROUP_NAME" &>/dev/null; then
     echo "Deleting Web App: $WEBAPP_NAME"
-    az webapp delete --name "$WEBAPP_NAME" --resource-group "$RESOURCE_GROUP_NAME" --yes
+    az webapp delete --name "$WEBAPP_NAME" --resource-group "$RESOURCE_GROUP_NAME"
   else
     echo "Web App $WEBAPP_NAME does not exist"
   fi
@@ -48,10 +54,9 @@ else
   # Delete the App Service Plan
   if az appservice plan show --name "$APP_SERVICE_PLAN_NAME" --resource-group "$RESOURCE_GROUP_NAME" &>/dev/null; then
     echo "Deleting App Service Plan: $APP_SERVICE_PLAN_NAME"
-    az appservice plan delete --name "$APP_SERVICE_PLAN_NAME" --resource-group "$RESOURCE_GROUP_NAME" --yes
+    az appservice plan delete --name "$APP_SERVICE_PLAN_NAME" --resource-group "$RESOURCE_GROUP_NAME"
   else
     echo "App Service Plan $APP_SERVICE_PLAN_NAME does not exist"
   fi
-
   echo "Regular delete complete Resource group, '$RESOURCE_GROUP_NAME', and Key Vault, '$KEYVAULT_NAME' persist."
 fi
