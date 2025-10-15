@@ -4,15 +4,13 @@ set -euo pipefail
 # Optional: define deployment name
 DEPLOYMENT_NAME="bullpen-blog-deployment"
 
-# Location for the subscription-level deployment
-LOCATION="northeurope"
-
 # Dynamically retrieve current user's Azure AD objectId for Key Vault role assignment
 OFFICER_PRINCIPAL_ID=$(az ad signed-in-user show --query id -o tsv)
 
 RESOURCE_GROUP=$(jq -r '.resourceGroupName.value' infra/params.json)
 KEYVAULT_NAME=$(jq -r '.keyVaultName.value' infra/params.json)
 DATABASE_NAME=$(jq -r '.databaseName.value' infra/params.json)
+LOCATION=$(jq -r '.resourceGroupLocation.value' infra/params.json)
 KEYVAULT_ID=''
 
 # Check if Key Vault exists
