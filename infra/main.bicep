@@ -25,6 +25,14 @@ param keyVaultSecretsOfficerRoleId string
 param officerPrincipalId string
 param createKeyVault bool
 param existingKeyVaultId string
+param env string
+param sqlDBName string
+param sqlDBAdminUsername string
+@secure()
+param sqlDBAdminPassword string
+param sqlDBSkuName string
+param sqlDBSkuTier string
+param createDatabase bool
 
 // Create resource group
 // Note: module paths are relative to THIS file, not run command
@@ -60,7 +68,21 @@ module kv 'key-vault.bicep' = {
   ]
 }
 
-// Create App Service Plan inside RG
+module db 'database.bicep' = {
+  name: 'databaseModule'
+  scope: az.resourceGroup(resourceGroupName)
+  params: {
+    sqlDBName: sqlDBName
+    resourceGroupLocation: resourceGroupLocation
+    sqlDBAdminUsername: sqlDBAdminUsername
+    sqlDBAdminPassword: sqlDBAdminPassword
+    sqlDBSkuName: sqlDBSkuName
+    sqlDBSkuTier: sqlDBSkuTier
+    env: env
+    createDatabase: createDatabase
+  }
+}
+
 module plan 'app-service-plan.bicep' = {
   name: 'planModule'
   scope: az.resourceGroup(resourceGroupName)
