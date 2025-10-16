@@ -13,6 +13,7 @@ KEYVAULT_NAME=$(jq -r '.keyVaultName.value' infra/params.json)
 APP_SERVICE_PLAN_NAME=$(jq -r '.planName.value' infra/params.json)
 WEBAPP_NAME=$(jq -r '.appName.value' infra/params.json)
 KEYVAULT_LOCATION=$(jq -r '.resourceGroupLocation.value' infra/params.json)
+KEYVAULT_SECRETS_ROLE_ID=$(jq -r '.keyVaultSecretsUserRoleId.value' infra/params.json)
 
 if $PURGE; then
   echo "Checking if Key Vault '$KEYVAULT_NAME' exists..."
@@ -37,11 +38,10 @@ if $PURGE; then
     echo "Resource group '$RESOURCE_GROUP_NAME' found. Deleting..."
   fi
 else
-  echo "Cleaning up Key Vault role assignments for $WEBAPP_NAME..."
-  KV_ID=$(az keyvault show -n "$KEYVAULT_NAME" -g "$RESOURCE_GROUP_NAME" --query id -o tsv)
-  for ID in $(az role assignment list --scope "$KV_ID" --query "[].id" -o tsv); do
-    az role assignment delete --ids "$ID"
-  done
+  echo "Cleaning up Key Vault role assignment for $WEBAPP_NAME..."
+  KEYVAULT_RESOURCE_ID=$(az keyvault show -n "$KEYVAULT_NAME" -g "$RESOURCE_GROUP_NAME" --query id -o tsv)
+  APP_PRINCIPAL_ID=$(az webapp show --name "$WEBAPP_NAME" --resource-group "$RESOURCE_GROUP_NAME" --query "identity.principalId" -o tsv)
+  az role assignment delete --assignee "$APP_PRINCIPAL_ID" --role "$KEYVAULT_SECRETS_ROLE_ID" --scope "$KEYVAULT_RESOURCE_ID"
 
   # Delete the Web App
   if az webapp show --name "$WEBAPP_NAME" --resource-group "$RESOURCE_GROUP_NAME" &>/dev/null; then
