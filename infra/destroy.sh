@@ -14,6 +14,7 @@ APP_SERVICE_PLAN_NAME=$(jq -r '.planName.value' infra/params.json)
 WEBAPP_NAME=$(jq -r '.appName.value' infra/params.json)
 KEYVAULT_LOCATION=$(jq -r '.resourceGroupLocation.value' infra/params.json)
 KEYVAULT_SECRETS_ROLE_ID=$(jq -r '.keyVaultSecretsUserRoleId.value' infra/params.json)
+DATABASE_NAME=$(jq -r '.sqlDBName.value' infra/params.json)
 
 if $PURGE; then
   echo "Checking if Key Vault '$KEYVAULT_NAME' exists..."
@@ -35,7 +36,7 @@ if $PURGE; then
   else
     # delete resource group
     az group delete --name "$RESOURCE_GROUP_NAME" --yes --no-wait
-    echo "Resource group '$RESOURCE_GROUP_NAME' found. Deleting..."
+    echo "Resource group '$RESOURCE_GROUP_NAME' found. Deleting EVERYTHING..."
   fi
 else
   echo "Cleaning up Key Vault role assignment for $WEBAPP_NAME..."
@@ -58,5 +59,5 @@ else
   else
     echo "App Service Plan $APP_SERVICE_PLAN_NAME does not exist"
   fi
-  echo "Regular delete complete Resource group, '$RESOURCE_GROUP_NAME', and Key Vault, '$KEYVAULT_NAME' persist."
+  echo "Regular delete complete. Resource group, '$RESOURCE_GROUP_NAME', Key Vault, '$KEYVAULT_NAME', and Database '$DATABASE_NAME' persist."
 fi
