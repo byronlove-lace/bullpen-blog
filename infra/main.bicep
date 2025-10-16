@@ -32,6 +32,7 @@ param sqlDBAdminUsername string
 param sqlDBAdminPassword string
 param sqlDBSkuName string
 param sqlDBSkuTier string
+param sqlServerName string
 param createDatabase bool
 
 // Create resource group
@@ -78,6 +79,7 @@ module db 'database.bicep' = {
     sqlDBAdminPassword: sqlDBAdminPassword
     sqlDBSkuName: sqlDBSkuName
     sqlDBSkuTier: sqlDBSkuTier
+    sqlServerName: sqlServerName
     env: env
     createDatabase: createDatabase
   }
