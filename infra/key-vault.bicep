@@ -47,7 +47,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2025-05-01' = if (createKeyVault) {
 }
 
 // Assign yourself as Key Vault Secrets Officer
-resource keyVaultSecretsOfficerAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource keyVaultSecretsOfficerAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (createKeyVault) {
   name: guid(keyVault.id, officerPrincipalId, keyVaultSecretsOfficerRoleId)
   scope: keyVault
   properties: {
