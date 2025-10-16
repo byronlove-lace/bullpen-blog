@@ -9,7 +9,9 @@ OFFICER_PRINCIPAL_ID=$(az ad signed-in-user show --query id -o tsv)
 
 RESOURCE_GROUP=$(jq -r '.resourceGroupName.value' infra/params.json)
 KEYVAULT_NAME=$(jq -r '.keyVaultName.value' infra/params.json)
-DATABASE_NAME=$(jq -r '.databaseName.value' infra/params.json)
+DATABASE_NAME=$(jq -r '.sqlDBName.value' infra/params.json)
+SQL_SERVER_NAME=$(jq -r '.sqlServerName.value' infra/params.json)
+DATABASE_ADMIN_USERNAME=$(jq -r '.sqlDBAdminUsername.value' infra/params.json)
 LOCATION=$(jq -r '.resourceGroupLocation.value' infra/params.json)
 KEYVAULT_ID=''
 
@@ -22,15 +24,18 @@ else
   CREATE_KV=true
 fi
 
-if az sql db show --name "$DATABASE_NAME" --resource-group "$RESOURCE_GROUP" &>/dev/null; then
+if az sql db show --name "$DATABASE_NAME" --resource-group "$RESOURCE_GROUP" --server "$SQL_SERVER_NAME" &>/dev/null; then
   echo "DB already exists. Skipping creation..."
   CREATE_DB=false
-  SQL_ADMIN_PASSWORD=''
+  DATABASE_ADMIN_PASSWORD=''
 else
   echo "No SQL DB found, generating new admin password and creating new DB..."
   CREATE_DB=true
-  SQL_ADMIN_PASSWORD=$(openssl rand -base64 32)
-  az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "SqlAdminPassword" --value "$SQL_ADMIN_PASSWORD" &>/dev/null
+  DATABASE_ADMIN_PASSWORD=$(openssl rand -base64 32)
+  PROD_DB_URI="mssql+pyodbc://${DATABASE_ADMIN_USERNAME}:${DATABASE_ADMIN_PASSWORD}@${SQL_SERVER_NAME}.database.windows.net:1433/${DATABASE_NAME}?driver=ODBC+Driver+18+for+SQL+Server"
+
+  az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "ProdDatabaseAdminPassword" --value "$DATABASE_ADMIN_PASSWORD" &>/dev/null
+  az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "ProdDatabaseURI" --value "$PROD_DB_URI" &>/dev/null
 fi
 
 # Launch deployment
@@ -42,5 +47,5 @@ az deployment sub create \
   officerPrincipalId="$OFFICER_PRINCIPAL_ID" \
   createKeyVault=$CREATE_KV \
   existingKeyVaultId="$KEYVAULT_ID" \
-  sqlDBAdminPassword="$SQL_ADMIN_PASSWORD" \
+  sqlDBAdminPassword="$DATABASE_ADMIN_PASSWORD" \
   createDatabase=$CREATE_DB
