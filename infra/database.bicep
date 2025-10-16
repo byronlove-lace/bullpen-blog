@@ -15,8 +15,7 @@ param sqlDBAdminUsername string
 @secure()
 param sqlDBAdminPassword string
 
-// Logic included here rather than deploy because resourceGroup().id cannot be resolved post creation but pre creation of db
-var sqlServerName string = uniqueString('sql', resourceGroup().id, env)
+param sqlServerName string
 
 resource sqlServer 'Microsoft.Sql/servers@2023-08-01' = if (createDatabase) {
   name: sqlServerName
