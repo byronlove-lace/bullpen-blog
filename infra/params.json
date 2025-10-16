@@ -91,5 +91,8 @@
   },
   "env": {
     "value": "dev"
+  },
+  "sqlServerName": {
+    "value": "bullpen-blog-sql-server"
   }
 }
