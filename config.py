@@ -1,6 +1,8 @@
 import os
 import logging
 import json
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -12,6 +14,17 @@ with open(params_path, "r") as f:
 AZURE_KEY_VAULT_NAME = params.get("keyVaultName", {}).get("value")
 if not AZURE_KEY_VAULT_NAME:
     raise RuntimeError("Key Vault name not found in infra/params.json")
+
+def get_secret(secret_name):
+    key_vault_uri = f"https://{AZURE_KEY_VAULT_NAME}.vault.azure.net/"
+
+    try:
+        credential = DefaultAzureCredential()
+        client = SecretClient(vault_url=key_vault_uri, credential=credential)
+        return client.get_secret(secret_name).value
+    except Exception as e:
+        raise RuntimeError(f"Failed to retrieve {secret_name} from Key Vault: {e}")
+
 class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv("SECRET_KEY")
@@ -65,7 +78,10 @@ class TestingConfig(Config):
 class ProductionConfig(Config):
     PRODUCTION = True
     SQLALCHEMY_DATABASE_URI = os.environ.get("PRODUCTION_DATABASE_URI")
+    SECRET_KEY = get_secret("SecretKey")
 
+    SQLALCHEMY_DATABASE_URI = get_secret("ProdDatabaseURI")
+    MAIL_PASSWORD= get_secret("ProdSandboxMailPassword")
 config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
