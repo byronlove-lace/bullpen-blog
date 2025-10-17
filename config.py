@@ -1,5 +1,4 @@
 import os
-import logging
 import json
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
@@ -64,6 +63,10 @@ class Config:
     TEST_CLIENT_USERNAME=os.getenv('TEST_CLIENT_USERNAME')
     LOOPBACK_ADDRESS=os.getenv('LOOPBACK_ADDRESS')
 
+    # Performance
+    BULLPEN_SLOW_DB_QUERY_TIME=float(os.environ.get('BULLPEN_SLOW_DB_QUERY_TIME', 0.5))
+    SQLALCHEMY_RECORD_QUERIES=os.environ.get('SQLALCHEMY_RECORD_QUERIES', "true").lower() == "true"
+
     @staticmethod
     def init_app(app):
         pass
@@ -89,6 +92,7 @@ class ProductionConfig(Config):
     MAIL_SERVER = os.getenv("PROD_MAIL_SERVER")
     MAIL_USERNAME = os.getenv("PROD_SANDBOX_MAIL_USERNAME")
     MAIL_PASSWORD= get_secret("ProdSandboxMailPassword")
+
 config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
