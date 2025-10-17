@@ -34,6 +34,8 @@ param sqlDBSkuName string
 param sqlDBSkuTier string
 param sqlServerName string
 param createDatabase bool
+param createAppServicePlan bool
+param createApp bool
 
 // Create resource group
 // Note: module paths are relative to THIS file, not run command
@@ -94,6 +96,7 @@ module plan 'app-service-plan.bicep' = {
     planSkuTier: planSkuTier
     resourceGroupLocation: resourceGroupLocation
     isLinux: isLinux
+    createAppServicePlan: createAppServicePlan
   }
   dependsOn: [
     resourceGroup
@@ -116,6 +119,7 @@ module app 'web-app.bicep' = {
     keyVaultId: kv.outputs.keyVaultId
     keyVaultSecretsUserRoleId: keyVaultSecretsUserRoleId
     keyVaultName: keyVaultName
+    createApp: createApp
   }
   // No need for dependsOn as it is automatically linked due to output dependencies
 }
