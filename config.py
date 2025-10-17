@@ -29,15 +29,17 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv("SECRET_KEY")
 
-    # Mail Stuff
+    # Dev/Testing Mail Stuff
     try:
-        MAIL_PORT = int(os.getenv("MAIL_PORT", 587))
+       MAIL_PORT = int(os.getenv("DEV_MAIL_PORT", 587))
     except ValueError:
-        raise RuntimeError("MAIL_PORT must be an integer")
-    MAIL_SERVER = os.getenv("MAIL_SERVER")
-    MAIL_USE_TLS = os.getenv("MAIL_USE_TLS")
-    MAIL_USERNAME = os.getenv("MAIL_USERNAME")
-    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
+        raise RuntimeError("DEV_MAIL_PORT must be an integer")
+    MAIL_SERVER = os.getenv("DEV_MAIL_SERVER")
+    MAIL_USERNAME = os.getenv("DEV_MAIL_USERNAME")
+    MAIL_PASSWORD = os.getenv("DEV_MAIL_PASSWORD")
+    MAIL_USE_TLS = os.getenv("MAIL_USE_TLS", "true").lower() == "true"
+    MAIL_USE_SSL = os.getenv("MAIL_USE_SSL", "false").lower() == "false"
+
     BULLPEN_MAIL_SUBJECT_PREFIX = '[Bullpen]'
     BULLPEN_MAIL_SENDER = f"Bullpen Admin <{MAIL_USERNAME}>"
     BULLPEN_ADMIN_MAIL = os.getenv("BULLPEN_ADMIN_MAIL")
@@ -77,10 +79,15 @@ class TestingConfig(Config):
 
 class ProductionConfig(Config):
     PRODUCTION = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get("PRODUCTION_DATABASE_URI")
+
     SECRET_KEY = get_secret("SecretKey")
 
     SQLALCHEMY_DATABASE_URI = get_secret("ProdDatabaseURI")
+    SERVER_NAME = os.environ.get("PROD_SERVER_NAME")
+
+    # PROD MAIL
+    MAIL_SERVER = os.getenv("PROD_MAIL_SERVER")
+    MAIL_USERNAME = os.getenv("PROD_SANDBOX_MAIL_USERNAME")
     MAIL_PASSWORD= get_secret("ProdSandboxMailPassword")
 config = {
     'development': DevelopmentConfig,
