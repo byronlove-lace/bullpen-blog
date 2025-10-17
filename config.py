@@ -1,6 +1,17 @@
 import os
+import logging
+import json
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+
+# Source KV name from params.json for single source of truth
+params_path = os.path.join(basedir, "infra", "params.json")
+with open(params_path, "r") as f:
+    params = json.load(f)
+
+AZURE_KEY_VAULT_NAME = params.get("keyVaultName", {}).get("value")
+if not AZURE_KEY_VAULT_NAME:
+    raise RuntimeError("Key Vault name not found in infra/params.json")
 class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv("SECRET_KEY")
