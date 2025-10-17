@@ -27,7 +27,10 @@ param keyVaultName string
 
 param webAppHttps bool
 
-resource webApp 'Microsoft.Web/sites@2024-11-01' = {
+@description('Create an app resource if it does not already exist.')
+param  createApp bool
+
+resource webApp 'Microsoft.Web/sites@2024-11-01' = if (createApp) {
   name: appName
   location: resourceGroupLocation
   kind: webAppKind
@@ -43,12 +46,12 @@ resource webApp 'Microsoft.Web/sites@2024-11-01' = {
 }
 
 // Reference the Key Vault as an existing resource
-resource keyVault 'Microsoft.KeyVault/vaults@2025-05-01' existing = {
+resource keyVault 'Microsoft.KeyVault/vaults@2025-05-01' existing = if (createApp) {
   name: keyVaultName
 }
 
 // Assign webApp as KeyVaultSecretsUser
-resource keyVaultSecretsUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource keyVaultSecretsUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (createApp) {
   name: guid(keyVaultId, webApp.name, keyVaultSecretsUserRoleId)
   scope: keyVault
   properties: {
