@@ -81,18 +81,45 @@
     "value": "bullpen-blog-db"
   },
   "sqlDBAdminUsername": {
-    "value": "bullpen-admin"
-  },
-  "sqlDBSkuName": {
-    "value": "standard"
-  },
-  "sqlDBSkuTier": {
-    "value": "standard"
-  },
-  "env": {
-    "value": "dev"
+    "value": "bullpenAdmin"
   },
   "sqlServerName": {
     "value": "bullpen-blog-sql-server"
+  },
+  "postgresqlVersion": {
+    "value": "17"
+  },
+  "sqlServerBackupRetentionDays": {
+    "value": 35
+  },
+  "sqlServerGeoRedundantBackup": {
+    "value": "Enabled"
+  },
+  "sqlServerCreateMode": {
+    "value": "Default"
+  },
+  "sqlServerDataEncryptionType": {
+    "value": "SystemManaged"
+  },
+  "sqlServerHighAvailabilityMode": {
+    "value": "Disabled"
+  },
+  "sqlServerPublicNetworkAccess": {
+    "value": "Enabled"
+  },
+  "sqlServerAutoGrow": {
+    "value": "Enabled"
+  },
+  "sqlServerInitialStorageSizeGB": {
+    "value": 32
+  },
+  "sqlServerStorageType": {
+    "value": "Premium_LRS"
+  },
+  "sqlServerSkuName": {
+    "value": "Standard_B1ms"
+  },
+  "sqlServerSkuTier": {
+    "value": "Burstable"
   }
 }

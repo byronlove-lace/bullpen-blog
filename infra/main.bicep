@@ -25,17 +25,26 @@ param keyVaultSecretsOfficerRoleId string
 param officerPrincipalId string
 param createKeyVault bool
 param existingKeyVaultId string
-param env string
 param sqlDBName string
 param sqlDBAdminUsername string
 @secure()
 param sqlDBAdminPassword string
-param sqlDBSkuName string
-param sqlDBSkuTier string
 param sqlServerName string
 param createDatabase bool
 param createAppServicePlan bool
 param createApp bool
+param sqlServerBackupRetentionDays int
+param sqlServerGeoRedundantBackup string
+param sqlServerCreateMode string
+param sqlServerDataEncryptionType string
+param sqlServerHighAvailabilityMode string
+param sqlServerPublicNetworkAccess string
+param sqlServerAutoGrow string
+param sqlServerInitialStorageSizeGB int
+param sqlServerStorageType string
+param postgresqlVersion string
+param sqlServerSkuName string
+param sqlServerSkuTier string
 
 // Create resource group
 // Note: module paths are relative to THIS file, not run command
@@ -79,11 +88,20 @@ module db 'database.bicep' = {
     resourceGroupLocation: resourceGroupLocation
     sqlDBAdminUsername: sqlDBAdminUsername
     sqlDBAdminPassword: sqlDBAdminPassword
-    sqlDBSkuName: sqlDBSkuName
-    sqlDBSkuTier: sqlDBSkuTier
     sqlServerName: sqlServerName
-    env: env
     createDatabase: createDatabase
+    sqlServerBackupRetentionDays: sqlServerBackupRetentionDays
+    sqlServerGeoRedundantBackup: sqlServerGeoRedundantBackup
+    sqlServerCreateMode: sqlServerCreateMode
+    sqlServerDataEncryptionType: sqlServerDataEncryptionType
+    sqlServerHighAvailabilityMode: sqlServerHighAvailabilityMode
+    sqlServerPublicNetworkAccess: sqlServerPublicNetworkAccess
+    sqlServerAutoGrow: sqlServerAutoGrow
+    sqlServerInitialStorageSizeGB: sqlServerInitialStorageSizeGB
+    sqlServerStorageType: sqlServerStorageType
+    postgresqlVersion: postgresqlVersion
+    sqlServerSkuName: sqlServerSkuName
+    sqlServerSkuTier: sqlServerSkuTier
   }
 }
 
