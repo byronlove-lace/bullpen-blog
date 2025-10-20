@@ -7,21 +7,8 @@ from flask_mail import Mail
 from flask_moment import Moment
 from flask_pagedown import PageDown
 from flask_sqlalchemy import SQLAlchemy
-from loguru import logger
 
 from config import config
-
-# Log to a file with rotation and retention
-logger.add(
-    "../logs/app.log",
-    rotation="10 MB",         # new file when it exceeds 10MB
-    retention="7 days",       # keep logs for 7 days
-    compression="zip"         # compress old logs
-)
-
-# Log to another file at ERROR level only
-logger.add("../logs/errors.log", level="ERROR")
-logger.add("../logs/debug.log", level="DEBUG")
 
 # Config rich to focus on my code > lib code
 def rich_traceback_filter(frame):
