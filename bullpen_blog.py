@@ -3,7 +3,9 @@ import sys
 
 import click
 from dotenv import load_dotenv
-from flask_migrate import Migrate
+from flask_migrate import Migrate, upgrade
+from werkzeug.middleware.profiler import ProfilerMiddleware
+from sqlalchemy.exc import OperationalError, ProgrammingError, InterfaceError
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 if os.path.exists(dotenv_path):
@@ -43,3 +45,15 @@ def test(coverage):
         COV.html_report(directory=covdir)
         print(f'HTML version: file://{covdir}/index.html')
         COV.erase()
+
+@app.cli.command()
+@click.option('--length', default=25,
+              help='Number of functions to include in the profiler report.')
+@click.option('--profile-dir', default=None,
+              help='Directory where profiler data files are saved.')
+def profile(length, profile_dir):
+    """Start the application under the code profiler."""
+    app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[length],
+                                        profile_dir=profile_dir)
+    app.run(debug=False)
+
