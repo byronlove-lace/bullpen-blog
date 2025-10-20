@@ -57,3 +57,24 @@ def profile(length, profile_dir):
                                         profile_dir=profile_dir)
     app.run(debug=False)
 
+@app.cli.command()
+def deploy():
+    """Run deployment tasks."""
+
+    # migrate database to latest revision
+    try:
+        upgrade()
+    except OperationalError as e:
+        print("DB connection failed or DB not ready:", e)
+    except ProgrammingError as e:
+        print("Migration SQL failed:", e)
+    except InterfaceError as e:
+        print("Driver/interface issue:", e)
+    else:
+        print("Database upgraded successfully!")
+
+    # create or update user roles
+    Role.insert_roles()
+
+    # ensure all users are following themselves
+    User.add_self_follows()
