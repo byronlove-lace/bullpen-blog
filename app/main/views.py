@@ -29,7 +29,7 @@ def index():
         query = Post.query
     pagination = query.order_by(Post.timestamp.desc()).paginate(
     page=page,
-    per_page=current_app.config['BULLPEN_POSTS_PER_PAGE'],
+    per_page=current_app.config['POSTS_PER_PAGE'],
     error_out=False)
     posts = pagination.items
     return render_template('index.html', form=form, posts=posts,
@@ -100,10 +100,10 @@ def post(id):
     page = request.args.get('page', 1, type=int)
     if page == -1:
         page = (post.comments.count() - 1) // \
-            current_app.config['BULLPEN_COMMENTS_PER_PAGE'] + 1
+            current_app.config['COMMENTS_PER_PAGE'] + 1
     pagination = post.comments.order_by(Comment.timestamp.asc()).paginate(
         page=page,
-        per_page=current_app.config['BULLPEN_COMMENTS_PER_PAGE'],
+        per_page=current_app.config['COMMENTS_PER_PAGE'],
         error_out=False)
     comments = pagination.items
     return render_template('post.html', posts=[post], form=form,
@@ -166,7 +166,7 @@ def followers(username):
     page = request.args.get('page', 1, type=int)
     pagination = user.followers.paginate(
     page=page,
-    per_page=current_app.config['BULLPEN_FOLLOWERS_PER_PAGE'],
+    per_page=current_app.config['FOLLOWERS_PER_PAGE'],
     error_out=False)
     follows = [{'user': item.follower, 'timestamp': item.timestamp}
                for item in pagination.items]
@@ -183,7 +183,7 @@ def followed_by(username):
     page = request.args.get('page', 1, type=int)
     pagination = user.followed.paginate(
         page=page,
-        per_page=current_app.config['BULLPEN_FOLLOWERS_PER_PAGE'],
+        per_page=current_app.config['FOLLOWERS_PER_PAGE'],
         error_out=False)
     follows = [{'user': item.followed, 'timestamp': item.timestamp}
                for item in pagination.items]
@@ -212,7 +212,7 @@ def moderate():
     page = request.args.get('page', 1, type=int)
     pagination = Comment.query.order_by(Comment.timestamp.desc()).paginate(
         page=page,
-        per_page=current_app.config['BULLPEN_POSTS_PER_PAGE'],
+        per_page=current_app.config['POSTS_PER_PAGE'],
         error_out=False)
     comments = pagination.items
     return render_template('moderate.html', comments=comments,
