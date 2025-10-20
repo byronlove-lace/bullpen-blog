@@ -35,7 +35,8 @@ else
   echo "No SQL DB found, creating new DB..."
   CREATE_DB=true
   DATABASE_ADMIN_PASSWORD=$(openssl rand -base64 32)
-  PROD_DB_URI="mssql+pyodbc://${DATABASE_ADMIN_USERNAME}:${DATABASE_ADMIN_PASSWORD}@${SQL_SERVER_NAME}.database.windows.net:1433/${DATABASE_NAME}?driver=ODBC+Driver+18+for+SQL+Server"
+  POSTGRES_LISTENING_PORT=5432
+  PROD_DB_URI="postgresql+psycopg2://${DATABASE_ADMIN_USERNAME}:${DATABASE_ADMIN_PASSWORD}@${SQL_SERVER_NAME}:${POSTGRES_LISTENING_PORT}/${DATABASE_NAME}"
 fi
 
 # Check if App Service Plan exists
