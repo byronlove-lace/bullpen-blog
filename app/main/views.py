@@ -1,16 +1,18 @@
 from flask import (abort, current_app, flash, make_response, redirect,
                    render_template, request, url_for)
-from flask_login import current_user, login_required, user_needs_refresh
+from flask_login import current_user, login_required
 
 from .. import db
 from ..decorators import admin_required, permission_required
 from ..models import Comment, Permission, Post, Role, User
 from . import main
 from .forms import CommentForm, EditProfileAdminForm, EditProfileForm, PostForm
+from flask_sqlalchemy import record_queries
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
     form = PostForm()
+
     if current_user.can(Permission.WRITE) and form.validate_on_submit():
         post = Post(body=form.body.data)
         post.author = current_user
@@ -237,3 +239,13 @@ def moderate_disable(id):
     db.session.commit()
     return redirect(url_for('.moderate',
                             page=request.args.get('page', 1, type=int)))
+
+@main.after_app_request
+def after_request(response):
+    if current_app.config['SQLALCHEMY_RECORD_QUERIES']:
+        for query in record_queries.get_recorded_queries():
+            if query.duration >= current_app.config['SLOW_DB_QUERY_TIME']:
+                current_app.logger.warning(
+                    f"Slow query: {query.statement}\n Duration: {query.duration}s\nContext:{query.context}"
+                )
+    return response
