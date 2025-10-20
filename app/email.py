@@ -3,16 +3,15 @@ from threading import Thread
 from flask import current_app, render_template
 from flask_mail import Message
 
-from . import logger, mail
+from . import mail
 
 
 def send_async_email(app, msg):
     with app.app_context():
         try:
             mail.send(msg)
-            logger.info(f"Sent async email to {msg.recipients[0]} with subject '{msg.subject}'")
         except Exception as e:
-            logger.error(f"Failed to send async email: {e}")
+            print(f"Error sending email: {e}")
 
 def send_email(to, subject, template, **kwargs):
     app = current_app._get_current_object()
