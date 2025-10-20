@@ -5,6 +5,7 @@ import bleach
 from flask import current_app, url_for
 from flask_login import AnonymousUserMixin, UserMixin
 from itsdangerous import URLSafeTimedSerializer as Serializer
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from markdown import markdown
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -56,16 +57,25 @@ class Role(db.Model):
                               Permission.MODERATE, Permission.ADMIN],
         }
         default_role = 'User'
-        for r in roles:
-            role = Role.query.filter_by(name=r).first()
-            if role is None:
-                role = Role(name=r)
-            role.reset_permissions()
-            for perm in roles[r]:
-                role.add_permission(perm)
-            role.default = (role.name == default_role)
-            db.session.add(role)
-        db.session.commit()
+        try:
+            for r in roles:
+                role = Role.query.filter_by(name=r).first()
+                if role is None:
+                    role = Role(name=r)
+                role.reset_permissions()
+                for perm in roles[r]:
+                    role.add_permission(perm)
+                role.default = (role.name == default_role)
+                db.session.add(role)
+            db.session.commit()
+        except IntegrityError as e:
+            db.session.rollback()
+            print(f"[ERROR] Role insert failed (possible duplicate): {e}")
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"[ERROR] Unexpected DB error inserting roles: {e}")
+        else:
+            print("[INFO] Roles inserted/updated successfully.")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
