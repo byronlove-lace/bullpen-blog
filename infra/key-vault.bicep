@@ -22,13 +22,13 @@ param keyVaultEnableSoftDelete bool
 param keyVaultEnableRbac bool
 
 @description('The built-in Azure RBAC role ID for "Key Vault Secrets Officer". This role lets a principal manage secrets (create, delete, set attributes, read).')
+#disable-next-line secure-secrets-in-params
 param keyVaultSecretsOfficerRoleId string
 
 @description('The object ID of the human or service principal that should have Key Vault Officer access')
 param officerPrincipalId string
 
 param createKeyVault bool
-param existingKeyVaultId string
 
 resource keyVault 'Microsoft.KeyVault/vaults@2025-05-01' = if (createKeyVault) {
   name: keyVaultName
@@ -56,5 +56,3 @@ resource keyVaultSecretsOfficerAssignment 'Microsoft.Authorization/roleAssignmen
     principalId: officerPrincipalId
   }
 }
-
-output keyVaultId string = createKeyVault ? keyVault.id : existingKeyVaultId
