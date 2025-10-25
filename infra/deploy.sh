@@ -10,6 +10,7 @@ OFFICER_PRINCIPAL_ID=$(az ad signed-in-user show --query id -o tsv)
 RESOURCE_GROUP=$(jq -r '.resourceGroupName.value' infra/params.json)
 KEYVAULT_NAME=$(jq -r '.keyVaultName.value' infra/params.json)
 DATABASE_NAME=$(jq -r '.sqlDBName.value' infra/params.json)
+DATABASE_ADMIN_PASSWORD=''
 SQL_SERVER_NAME=$(jq -r '.sqlServerName.value' infra/params.json)
 APP_NAME=$(jq -r '.appName.value' infra/params.json)
 APP_SERVICE_PLAN_NAME=$(jq -r '.planName.value' infra/params.json)
@@ -51,16 +52,20 @@ else
 fi
 
 # Check if Database exists
-if az sql db show --name "$DATABASE_NAME" --resource-group "$RESOURCE_GROUP" --server "$SQL_SERVER_NAME" &>/dev/null; then
+if az postgres flexible-server db list \
+  --resource-group "$RESOURCE_GROUP" \
+  --server-name "$SQL_SERVER_NAME" \
+  --query "[?name=='$DATABASE_NAME']" \
+  -o tsv | grep -q "$DATABASE_NAME" &>/dev/null; then
   echo "DB already exists. Skipping creation..."
   CREATE_DB=false
-  DATABASE_ADMIN_PASSWORD=''
 else
-  echo "No SQL DB found, creating new DB..."
+  echo "No PostgreSQL DB found, creating new DB..."
   CREATE_DB=true
   DATABASE_ADMIN_PASSWORD=$(openssl rand -base64 32)
   POSTGRES_LISTENING_PORT=5432
-  PROD_DB_URI="postgresql+psycopg2://${DATABASE_ADMIN_USERNAME}:${DATABASE_ADMIN_PASSWORD}@${SQL_SERVER_NAME}:${POSTGRES_LISTENING_PORT}/${DATABASE_NAME}"
+  AZURE_POSTGRESQL_SERVER_HOST_SUFFIX=postgres.database.azure.com
+  PROD_DB_URI="postgresql+psycopg2://${DATABASE_ADMIN_USERNAME}:${DATABASE_ADMIN_PASSWORD}@${SQL_SERVER_NAME}.${AZURE_POSTGRESQL_SERVER_HOST_SUFFIX}:${POSTGRES_LISTENING_PORT}/${DATABASE_NAME}?sslmode=require"
 fi
 
 # Check if App Service Plan exists
@@ -92,7 +97,7 @@ az deployment sub create \
   sqlDBAdminPassword="$DATABASE_ADMIN_PASSWORD" \
   createDatabase=$CREATE_DB \
   createAppServicePlan=$CREATE_ASP \
-  createApp=$CREATE_APP
+  createApp=$CREATE_APP \
 
 # Adding Secrets
 if [ "$CREATE_KV" = true ]; then
