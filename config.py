@@ -7,10 +7,7 @@ class Config:
     SECRET_KEY = os.getenv("DEV_SECRET_KEY")
 
     # Dev/Testing Mail Stuff
-    try:
-       MAIL_PORT = int(os.getenv("DEV_MAIL_PORT", 587))
-    except ValueError:
-        raise RuntimeError("DEV_MAIL_PORT must be an integer")
+    MAIL_PORT = int(os.getenv("DEV_MAIL_PORT", 587))
     MAIL_SERVER = os.getenv("DEV_MAIL_SERVER")
     MAIL_USERNAME = os.getenv("DEV_MAIL_USERNAME")
     MAIL_PASSWORD = os.getenv("DEV_MAIL_PASSWORD")
@@ -18,7 +15,7 @@ class Config:
     MAIL_USE_SSL = os.getenv("MAIL_USE_SSL", "false").lower() == "true"
 
     MAIL_SUBJECT_PREFIX = '[Bullpen]'
-    MAIL_SENDER = f"Bullpen Admin <{MAIL_USERNAME}>"
+    MAIL_SENDER = f"Bullpen Blog <{MAIL_USERNAME}>"
     ADMIN_MAIL = os.getenv("ADMIN_MAIL")
 
     # Pages
@@ -68,8 +65,9 @@ class ProductionConfig(Config):
 
     # PROD MAIL
     MAIL_SERVER = os.getenv("PROD_MAIL_SERVER")
-    MAIL_USERNAME = os.getenv("PROD_MAIL_USERNAME")
+    MAIL_USERNAME = os.getenv("PROD_MAIL_LOGIN")
     MAIL_PASSWORD= os.getenv('PROD_MAIL_PASSWORD')
+    MAIL_SENDER = f"Bullpen Blog <{MAIL_USERNAME}>"
 
     @classmethod
     def init_app(cls, app):
