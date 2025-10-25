@@ -15,7 +15,6 @@ APP_NAME=$(jq -r '.appName.value' infra/params.json)
 APP_SERVICE_PLAN_NAME=$(jq -r '.planName.value' infra/params.json)
 DATABASE_ADMIN_USERNAME=$(jq -r '.sqlDBAdminUsername.value' infra/params.json)
 LOCATION=$(jq -r '.resourceGroupLocation.value' infra/params.json)
-KEYVAULT_ID=''
 # Getter func for secrets with success/fail check
 get_secret() {
   local secret
@@ -47,7 +46,6 @@ set_secret() {
 if az keyvault show --name "$KEYVAULT_NAME" --resource-group "$RESOURCE_GROUP" &>/dev/null; then
   echo "Key Vault exists, skipping creation"
   CREATE_KV=false
-  KEYVAULT_ID=$(az keyvault show --name "$KEYVAULT_NAME" --resource-group "$RESOURCE_GROUP" --query "id" -o tsv)
 else
   CREATE_KV=true
 fi
@@ -91,7 +89,6 @@ az deployment sub create \
   --parameters @infra/params.json \
   officerPrincipalId="$OFFICER_PRINCIPAL_ID" \
   createKeyVault=$CREATE_KV \
-  existingKeyVaultId="$KEYVAULT_ID" \
   sqlDBAdminPassword="$DATABASE_ADMIN_PASSWORD" \
   createDatabase=$CREATE_DB \
   createAppServicePlan=$CREATE_ASP \
