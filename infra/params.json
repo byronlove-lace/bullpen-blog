@@ -16,26 +16,31 @@
     "value": "bullpen-blog-plan"
   },
   "planSkuName": {
-    "value": "B1"
+    "value": "F1"
   },
   "planSkuTier": {
-    "value": "Basic"
+    "value": "Free"
   },
-  "isLinux": {
+  "planKind": {
+    "value": "linux"
+  },
+  "planReserved": {
     "value": true
   },
   "appName": {
     "value": "bullpen-blog"
   },
-  "webAppTags": {
-    "value": {
-      "Environment": "Production",
-      "Project": "Bullpen Blog",
-      "Version": "1.0.0"
-    }
-  },
   "webAppKind": {
-    "value": "app"
+    "value": "app,linux,container"
+  },
+  "webAppHttpsOnly": {
+    "value": true
+  },
+  "webAppPublicNetworkAccess": {
+    "value": "Enabled"
+  },
+  "webAppReserved": {
+    "value": true
   },
   "keyVaultName": {
     "value": "bullpen-blog-keyvault"
@@ -59,20 +64,17 @@
   "keyVaultEnableSoftDelete": {
     "value": true
   },
-  "webAppHttps": {
-    "value": true
-  },
   "webAppManagedServiceIdentityType": {
     "value": "SystemAssigned"
   },
   "webAppClientAffinity": {
     "value": false
   },
+  "webAppClientCertEnabled": {
+    "value": false
+  },
   "keyVaultEnableRbac": {
     "value": true
-  },
-  "keyVaultSecretsUserRoleId": {
-    "value": "4633458b-17de-408a-b874-0445c86b69e6"
   },
   "keyVaultSecretsOfficerRoleId": {
     "value": "b86a8fe4-44ce-4948-aee5-eccb2c155cd7"
@@ -121,5 +123,17 @@
   },
   "sqlServerSkuTier": {
     "value": "Burstable"
+  },
+  "prodWebAppHost": {
+    "value": "bullpen-blog.org"
+  },
+  "prodMailServer": {
+    "value": "smtp.mailgun.org"
+  },
+  "prodMailLogin": {
+    "value": "support@mg.bullpen-blog.org"
+  },
+  "flaskConfig": {
+    "value": "docker"
   }
 }
