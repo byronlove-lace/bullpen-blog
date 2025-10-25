@@ -16,7 +16,33 @@ APP_SERVICE_PLAN_NAME=$(jq -r '.planName.value' infra/params.json)
 DATABASE_ADMIN_USERNAME=$(jq -r '.sqlDBAdminUsername.value' infra/params.json)
 LOCATION=$(jq -r '.resourceGroupLocation.value' infra/params.json)
 KEYVAULT_ID=''
+# Getter func for secrets with success/fail check
+get_secret() {
+  local secret
+  secret=$(az keyvault secret show --vault-name "$KEYVAULT_NAME" --name "$1" --query value -o tsv 2>/dev/null) || secret=""
 
+  if [[ -n "$secret" ]]; then
+    echo "$secret"
+  else
+    echo ""
+  fi
+}
+
+# Setter func for secrets
+set_secret() {
+  local name="$1"
+  local value="$2"
+
+  if [[ -z "$name" || -z "$value" ]]; then
+    echo "Usage: set_secret <secret_name> <secret_value>"
+    return 1
+  fi
+
+  echo "Setting secret '$name' in Key Vault '$KEYVAULT_NAME'..."
+  az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "$name" --value "$value" >/dev/null
+
+  echo "✅ Secret '$name' set successfully."
+}
 # Check if Key Vault exists
 if az keyvault show --name "$KEYVAULT_NAME" --resource-group "$RESOURCE_GROUP" &>/dev/null; then
   echo "Key Vault exists, skipping creation"
