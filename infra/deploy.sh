@@ -107,11 +107,36 @@ az deployment sub create \
 if [ "$CREATE_KV" = true ]; then
   echo "Adding new Secret Key to secrets..."
   SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_hex(32))")
-  az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "SecretKey" --value "$SECRET_KEY" &>/dev/null
+  set_secret "SecretKey" "$SECRET_KEY"
 fi
 
 if [ "$CREATE_DB" = true ]; then
   echo "Adding new DB Admin password and DB URI to secrets..."
-  az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "ProdDatabaseAdminPassword" --value "$DATABASE_ADMIN_PASSWORD" &>/dev/null
-  az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "ProdDatabaseURI" --value "$PROD_DB_URI" &>/dev/null
+  set_secret "ProdDatabaseAdminPassword" "$DATABASE_ADMIN_PASSWORD"
+  set_secret "ProdDatabaseURI" "$PROD_DB_URI"
+  az webapp config appsettings set \
+    --name "$APP_NAME" \
+    --resource-group "$RESOURCE_GROUP" \
+    --settings PROD_DB_URI="$PROD_DB_URI"
+fi
+
+if [ "$CREATE_APP" = true ]; then
+  PROD_SECRET_KEY_VAL="$(get_secret "SecretKey")"
+  PROD_DB_URI_VAL="$(get_secret "ProdDatabaseURI")"
+  PROD_MAIL_PASSWORD_VAL="$(get_secret "ProdMailPassword")"
+
+  # Only include non-empty secrets
+  SETTINGS=()
+  [[ -n "$PROD_SECRET_KEY_VAL" ]] && SETTINGS+=(PROD_SECRET_KEY="$PROD_SECRET_KEY_VAL")
+  [[ -n "$PROD_DB_URI_VAL" ]] && SETTINGS+=(PROD_DB_URI="$PROD_DB_URI_VAL")
+  [[ -n "$PROD_MAIL_PASSWORD_VAL" ]] && SETTINGS+=(PROD_MAIL_PASSWORD="$PROD_MAIL_PASSWORD_VAL")
+
+  if [ "${#SETTINGS[@]}" -gt 0 ]; then
+    az webapp config appsettings set \
+      --name "$APP_NAME" \
+      --resource-group "$RESOURCE_GROUP" \
+      --settings "${SETTINGS[@]}"
+  else
+    echo "⚠️ No secrets found to inject into Web App."
+  fi
 fi
