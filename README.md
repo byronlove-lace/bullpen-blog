@@ -1,132 +1,65 @@
-# Bullpen Blog — Minimal Flask Blog (API + Jinja frontend)
+# Bullpen Blog — Modular Flask Blog with API & Jinja Frontend
 
-> Small, modular Flask blog application with a Jinja-rendered web UI and a companion REST API (blueprints under `app/api`).
+> A production-ready, modular Flask blog application with a Jinja-rendered web UI and a companion REST API, fully containerized and deployable to Azure.
 
-This repository contains a teaching-style Flask project (inspired by *Flask Web Development*) that demonstrates: user accounts, roles & permissions, posts & comments, following, an API with token/basic auth, and migrations.
+Bullpen Blog demonstrates **full-stack Python web development** combined with modern **DevOps and cloud deployment practices**. It is designed as both a teaching resource and a real-world app, showcasing:
 
----
-
-## Features
-
-* Web UI using Flask + Jinja templates (routes under `app/main`).
-* Styling with Bootstrap — templates include Bootstrap 3/4 classes and macros
-  (via `bootstrap/wtf.html`) so forms and UI elements render with a clean,
-  responsive design out of the box.
-* REST API (blueprint `app/api`) for posts, users and comments with JSON responses.
-* Authentication for API routes via HTTP Basic / token (Flask-HTTPAuth).
-* Role-based permissions decorator (`permission_required`) for protected endpoints.
-* Email support — `Flask-Mail` for sending messages and `email_validator` for form validation.
-* Post/comment sanitization: Markdown -> safe HTML (Bleach + markdown).
-* Pagination support for posts and timelines.
-* Alembic migrations included for schema evolution.
-* Tests folder with basic model tests.
+- Modular Flask architecture (`app/main`, `app/api`, `app/auth`)  
+- RESTful API endpoints for posts, users, and comments  
+- Secure user authentication and role-based authorization  
+- Database modeling with SQLAlchemy and Alembic migrations  
+- Email notifications with Flask-Mail and form validation  
+- Containerized deployment using **Docker** and Azure App Service  
+- Automated infrastructure provisioning with **Bicep**  
+- Centralized logging for both local and cloud environments  
 
 ---
 
-## Quickstart — Development
+## Key Features
 
-These commands assume a POSIX shell (Linux/macOS). On Windows use PowerShell or WSL and adapt commands.
+### Web Frontend
+- **Responsive, Jinja2-based UI** using Bootstrap 3/4 classes and macros.
+- Modular templates and route structure under `app/main`.
+- Pagination for posts and timelines.
+- Error pages and email-confirmation flows with user-friendly feedback.
 
-```bash
-# create virtualenv
-python3 -m venv venv
-. venv/bin/activate
+### REST API
+- Fully-featured API blueprint under `app/api` serving JSON for posts, users, and comments.
+- Authentication via **HTTP Basic Auth** or tokens with `Flask-HTTPAuth`.
+- Role-based permission checks with a `permission_required` decorator.
+- Input sanitization: Markdown -> safe HTML via **Bleach + Markdown**.
 
-# install dependencies (dev includes testing)
-pip install -r requirements/dev.txt
+### User & Account Management
+- Registration, login, email confirmation, password reset, and profile editing.
+- Role and permission management for secure access control.
+- Email notifications for user actions using **Flask-Mail**.
 
-# set environment variables (example)
-export FLASK_APP=bullpen-blog.py
-export FLASK_ENV=development
-export SECRET_KEY='change-this-to-a-secure-value'
-export DATABASE_URL='sqlite:///data-dev.sqlite'
+### Backend & Database
+- SQLAlchemy models for users, posts, comments, and roles.
+- Alembic migrations for safe schema evolution.
+- Unit and integration tests in `tests/` to validate models and API behavior.
 
-# initialize the database and run the dev server
-flask db upgrade
-flask run
-```
+### Deployment & DevOps
+- Containerized with **Docker**, ready for production with Gunicorn.
+- Azure Web App container deployment with persistent `/home/LogFiles/Application` logging.
+- Automated startup scripts (`boot.sh`) and update scripts for reliable deployments.
+- Infrastructure-as-Code via **Bicep** for App Service, PostgreSQL database, Key Vault, and firewall rules.
+- Logs automatically captured locally and downloadable from Azure CLI.
 
-The app should be available at `http://127.0.0.1:5000/`.
-
----
-
-## Configuration
-
-Configuration is read from `config.py` and environment variables. Common config options used in this project:
-
-* `SECRET_KEY` — secret for signing tokens and forms.
-* `DATABASE_URL` — SQLAlchemy database URI (defaults to SQLite during development).
-* `BULLPEN_POSTS_PER_PAGE` — pagination size for posts.
-* `BULLPEN_COMMENTS_PER_PAGE` — pagination size for comments.
-* Mail settings (MAIL\_SERVER, MAIL\_PORT, MAIL\_USERNAME, MAIL\_PASSWORD) for email features.
-
-You can use a `.env` file with a tool like `direnv` or `python-dotenv` in local dev, or export variables in your shell.
+### Logging & Monitoring
+- Local development logs (`app/logs`) for debugging.
+- Cloud-ready logs under `/home/LogFiles/Application` for Azure Web App integration.
+- Combined stdout/stderr and persistent logs for full traceability.
 
 ---
 
-## Running tests
+## Why This Project Matters
 
-Tests live in the `tests/` directory and use `pytest`.
+Bullpen Blog is more than a simple Flask app. It’s a **demonstration of real-world software engineering skills**, including:
 
-```bash
-# run all tests
-pytest -q
-```
+- Pythonic architecture and clean code
+- RESTful API design and secure authentication
+- Database modeling, migrations, and testing
+- Cloud deployment, logging, and DevOps automation
+- Containerization and infrastructure-as-code best practices
 
----
-
-## API notes
-
-The API blueprint is registered under `/api` (see `app/api/__init__.py`). API endpoints return JSON and API errors are converted to JSON responses (e.g. validation errors -> HTTP 400 with message).
-
-**Auth model used by the API**
-
-* Token and basic auth support are implemented; clients should send credentials or tokens with each request.
-
-**Pagination**
-
-* Many list endpoints accept a `page` query parameter and return `prev`/`next` links and a `count` field for client-side navigation.
-
----
-
-## Project layout (important files)
-
-```
-app/                # application package
-  api/              # API blueprint (authentication, posts, users, comments)
-  auth/             # web authentication blueprint (forms, views)
-  main/             # web blueprint (Jinja views)
-  models.py         # SQLAlchemy models
-  templates/        # Jinja templates for web UI
-migrations/         # Alembic migrations
-bullpen-blog.py           # app entry point (create_app() and run)
-requirements/       # dependency lists (common, dev, prod)
-```
-
----
-
-## Dependencies & Installing Requirements
-
-**Notes about integrated libraries**
-
-* `Flask-HTTPAuth` is used for API Basic/Token auth.
-* `Flask-Login` / session-based auth powers the site UI (if used).
-* `Flask-Migrate` / Alembic handle DB migrations (see `migrations/`).
-* `Flask-SQLAlchemy` + `SQLAlchemy` are the ORM layers. The pinned SQLAlchemy pair is compatible with Flask-SQLAlchemy v3.x.
-* `Bleach` + `Markdown` sanitize/transform post content to safe HTML.
-* `PyMySQL` is included for MySQL connectivity. If you prefer PostgreSQL, add `psycopg[binary]` to `requirements/prod.txt` and update `DATABASE_URL`.
-
-**Python version**
-Use a recent stable Python (3.10 or 3.11 recommended). The pinned packages target modern Python 3.10+ environments.
-
----
-
-## License
-
-This project is provided as-is for learning and demo purposes. Add your license file (e.g., MIT) if you want to publish.
-
----
-
-## Contact / Credits
-
-Inspired by Miguel Grinberg's Flask tutorial / Flask Web Development material. For questions, open an issue or reach out in PR comments.
