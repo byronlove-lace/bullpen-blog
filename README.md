@@ -2,6 +2,8 @@
 
 > A production-ready, modular Flask blog application with a Jinja-rendered web UI and a companion REST API, fully containerized and deployable to Azure.
 
+![LANDING](images/Landing_Stranger.png)
+
 Bullpen Blog demonstrates **full-stack Python web development** combined with modern **DevOps and cloud deployment practices**. It is designed as both a teaching resource and a real-world app, showcasing:
 
 - Modular Flask architecture (`app/main`, `app/api`, `app/auth`)  
@@ -23,21 +25,30 @@ Bullpen Blog demonstrates **full-stack Python web development** combined with mo
 - Pagination for posts and timelines.
 - Error pages and email-confirmation flows with user-friendly feedback.
 
+![FAILED_LOGIN](images/Failed_Login.png)
+
 ### REST API
 - Fully-featured API blueprint under `app/api` serving JSON for posts, users, and comments.
 - Authentication via **HTTP Basic Auth** or tokens with `Flask-HTTPAuth`.
 - Role-based permission checks with a `permission_required` decorator.
 - Input sanitization: Markdown -> safe HTML via **Bleach + Markdown**.
 
+![ENTERING_POST](images/Entering_Post.png)
+![ENTERING_COMMENT](images/Entering_Comment.png)
+
 ### User & Account Management
 - Registration, login, email confirmation, password reset, and profile editing.
 - Role and permission management for secure access control.
 - Email notifications for user actions using **Flask-Mail**.
 
+![PROFILE_WITH_POST](images/Profile_With_Post.png)
+
 ### Backend & Database
 - SQLAlchemy models for users, posts, comments, and roles.
 - Alembic migrations for safe schema evolution.
 - Unit and integration tests in `tests/` to validate models and API behavior.
+
+![CONFIRMED_ACCOUNT](images/Confirmed_Account.png)
 
 ### Deployment & DevOps
 - Containerized with **Docker**, ready for production with Gunicorn.
