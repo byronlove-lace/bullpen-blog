@@ -16,6 +16,8 @@ APP_NAME=$(jq -r '.appName.value' infra/params.json)
 APP_SERVICE_PLAN_NAME=$(jq -r '.planName.value' infra/params.json)
 DATABASE_ADMIN_USERNAME=$(jq -r '.sqlDBAdminUsername.value' infra/params.json)
 LOCATION=$(jq -r '.resourceGroupLocation.value' infra/params.json)
+IMAGE_TAG="DOCKER|docker.io/${DOCKER_USERNAME}/bullpen-blog:latest"
+
 # Getter func for secrets with success/fail check
 get_secret() {
   local secret
@@ -43,6 +45,7 @@ set_secret() {
 
   echo "✅ Secret '$name' set successfully."
 }
+
 # Check if Key Vault exists
 if az keyvault show --name "$KEYVAULT_NAME" --resource-group "$RESOURCE_GROUP" &>/dev/null; then
   echo "Key Vault exists, skipping creation"
@@ -98,6 +101,7 @@ az deployment sub create \
   createDatabase=$CREATE_DB \
   createAppServicePlan=$CREATE_ASP \
   createApp=$CREATE_APP \
+  webAppLinuxFxVersion="$IMAGE_TAG"
 
 # Adding Secrets
 if [ "$CREATE_KV" = true ]; then
