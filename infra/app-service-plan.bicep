@@ -10,11 +10,14 @@ param planSkuTier string
 @description('Location of the App Service Plan')
 param resourceGroupLocation string
 
-@description('Whether the plan is Linux')
-param isLinux bool
-
 @description('Create plan if one does not already exist')
 param createAppServicePlan bool
+
+@description('Type of App Service Plan: Windows, Linux, or Linux Container')
+param planKind string
+
+@description('Set true for Linux App Service Plan; false for Windows')
+param planReserved bool
 
 @description('App Service Plan resource defining the compute and pricing tier for hosting Web Apps')
 resource appServicePlan 'Microsoft.Web/serverFarms@2024-11-01' = if (createAppServicePlan) {
@@ -24,9 +27,9 @@ resource appServicePlan 'Microsoft.Web/serverFarms@2024-11-01' = if (createAppSe
     name: planSkuName
     tier: planSkuTier
   }
-  kind: isLinux ? 'linux' : 'app'
+  kind: planKind
   properties: {
-    reserved: isLinux
+    reserved: planReserved
   }
 }
 
